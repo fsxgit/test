@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>任务</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <style>
+        html,body{width: 100%; height: 100%;}
+        .luckDrawUl::-webkit-scrollbar{width: 0;}
+    </style>
+    <script>
+        //    设置page,判断当前页面是否是login页面，判断未登录的情况下需不需要进入到登陆页面
+        /**
+         * pageState 用于判断当前页面需不需要登陆才能访问的参数
+         * 0：不需要登录即可访问
+         * 1：需要登录才能访问
+         * */
+        localStorage.setItem("pageState", "0");
+    </script>
+</head>
+<body>
+<div id="coin_header" class="bb518">
+    <div class="main pr top">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        <span class="tit" id="data_coin_tit">任务</span>
+    </div>
+</div>
+<div class="LuckDrawBox mt41">
+    <div class="LuckDrawDate">
+        <h2 class="tit">明天签到可领28Xball</h2>
+        <div class="luckDrawUl">
+            <ul class="LuckDrawDateList oh">
+                <li class="hasGet">
+                    <div class="top">
+                        <p>已领</p>
+                        <p>+15</p>
+                    </div>
+                    <p class="day">1天</p>
+                </li>
+                <li>
+                    <div class="top">
+                        <p>已领</p>
+                        <p>+15</p>
+                    </div>
+                    <p class="day">2天</p>
+                </li>
+                <li class="noStart">
+                    <div class="top">
+                        <p>已领</p>
+                        <p>+15</p>
+                    </div>
+                    <p class="day">3天</p>
+                </li>
+                <li>
+                    <div class="top">
+                        <p>已领</p>
+                        <p>+15</p>
+                    </div>
+                    <p class="day">4天</p>
+                </li>
+                <li>
+                    <div class="top">
+                        <p>已领</p>
+                        <p>+15</p>
+                    </div>
+                    <p class="day">5天</p>
+                </li>
+                <li class="noStart">
+                    <div class="top">
+                        <p>已领</p>
+                        <p>+15</p>
+                    </div>
+                    <p class="day">6天</p>
+                </li>
+                <li>
+                    <div class="top">
+                        <p>已领</p>
+                        <p>+15</p>
+                    </div>
+                    <p class="day">7天</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="LuckDrawBtn">
+        <div class="main" onclick="location.href='luck.html'"><img src="./images/rw_btn.png" alt=""/></div>
+    </div>
+    <div class="LuckDrawCont">
+        <h2 class="tit">日常任务</h2>
+        <div class="LuckDrawWorks main pr">
+            <ul class="LuckDrawWorksList">
+                <li>
+                    <div class="top"><div class="topcenter"><span class="name">邀请好友</span><span class="zhiding">置顶</span><span class="xball">+200 xball</span><span class="done"></span></div></div>
+                    <div class="cont pr">
+                        <div class="txt">Xball是方球对用户价值的奖励，也是一种数字资产。</div>
+                        <div class="btn" onclick="pageTo(1);">去邀请</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="top"><div class="topcenter"><span class="name">签到</span><span class="xball">+200 xball</span><span class="done"></span></div></div>
+                    <div class="cont pr">
+                        <div class="txt">Xball是方球对用户价值的奖励，也是一种数字资产。</div>
+                        <!--<div class="btn">去邀请</div>-->
+                    </div>
+                </li>
+                <li>
+                    <div class="top"><div class="topcenter"><span class="name">加入圈子</span><span class="xball">+200 xball</span><span class="done"></span></div></div>
+                    <div class="cont pr">
+                        <div class="txt">Xball是方球对用户价值的奖励，也是一种数字资产。</div>
+                        <div class="btn" onclick="pageTo(2);">去圈子</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="top"><div class="topcenter"><span class="name">发布动态</span><span class="zhiding">1/5</span><span class="xball">+200 xball</span><span class="done"></span></div></div>
+                    <div class="cont pr">
+                        <div class="txt">Xball是方球对用户价值的奖励，也是一种数字资产。</div>
+                        <div class="btn" onclick="pageTo(3);">去发布</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="top"><div class="topcenter"><span class="name">发评论</span><span class="zhiding">1/2</span><span class="xball">+200 xball</span><span class="done"></span></div></div>
+                    <div class="cont pr">
+                        <div class="txt">Xball是方球对用户价值的奖励，也是一种数字资产。</div>
+                        <div class="btn" onclick="pageTo(4);">去评论</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+    $(".LuckDrawWorksList .top").click(function(){
+        var This = $(this).find(".xball");
+        This.toggleClass("down");
+        if(This.hasClass("down")){
+            This.parents("li").addClass("open");
+        }else{
+            This.parents("li").removeClass("open");
+        }
+    });
+
+    var zw =  $(".LuckDrawDateList li").length*($(".LuckDrawDateList li").width()+16);
+    $(".LuckDrawDateList").css({"width":zw});
+
+    var uid = GetHrefVal("uid");
+    var token = GetHrefVal("token");
+    var isml = GetHrefVal("isml");
+    console.log(uid);
+    console.log(token);
+    console.log(isml);
+    if(!isml){
+        $("#coin_header").hide();
+        $(".LuckDrawBox").removeClass("mt41");
+    }
+
+    if(!uid){
+        uid = "481b676ed2c01862e1bd17c2c99e32cf";
+    }
+    /**
+     * APP日常任务
+     * */
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/task?uid="+uid,
+        type:"post",
+        success:function(data){
+            console.log("获取APP日常任务");
+            console.log(data);
+            var data = data["data"];
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+
+
+
+
+    /**
+     * app给H5传递参数形式
+     * "../LuckDraw.html?uid=481b676ed2c01862e1bd17c2c99e32cf&token=23456&isml=1";
+     * uid：用户id
+     * token:token
+     * isml:判断是不是app传递过来的;如果是1表示是网页跳转过来的，如果为false表示是app跳转过来的
+     *
+     * app:判断是不是由app跳转进来的
+     * 1 是app跳转进来的
+     * 0 是网页跳转进来的
+     *
+     * page:参数代表要跳转的页面
+     * 1：邀请好友
+     * 2：加入圈子
+     * 3：发布动态
+     * 4：发评论
+     *
+     *isAndroid：判断是不是Android终端 true 是
+     *isiOS：判断是不是isiOS终端 true 是
+     * javaKey:和Android商定的关键字
+     * */
+
+    //  定义命名空间 LenSmJs
+    //the judgment is ios or Android？
+    var LenSmJsU = navigator.userAgent;
+    var isAndroid = LenSmJsU.indexOf('Android') > -1 || LenSmJsU.indexOf('Adr') > -1; //android终端
+    var isiOS = !!LenSmJsU.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+    function pageTo(page){
+        console.log("page="+page);
+        if(isml == 1){
+            //网页端
+            if(page == 1){
+                location.href = "";
+            }else if(page == 2){
+                location.href = "";
+            }else if(page == 3){
+                location.href = "";
+            }else if(page == 4){
+                location.href = "";
+            }else if(page == 5){
+                location.href = "";
+            }else if(page == 6){
+                location.href = "";
+            }else if(page == 7){
+                location.href = "";
+            }else if(page == 8){
+                location.href = "";
+            }
+        }else{
+            //app
+            if(isAndroid == true){
+                //android终端
+                javaKey.PageToAPP(page);
+            }else{
+                //ios终端
+                //PageToAPP(page);
+
+                window.webkit.messageHandlers.PageToAPP.postMessage(page);
+            }
+        }
+
+
+    }
+</script>
+</body>
+</html>

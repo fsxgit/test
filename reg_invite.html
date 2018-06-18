@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <title>方球</title>
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <style>
+        html,body{background: #fff;  width: 100%; height: 100%;}
+        .data_nickname{padding:0 !important;}
+    </style>
+</head>
+<body>
+<div class="reginv_box">
+    <div class="main">
+        <div class="slogan"><img src="./images/reg_slogan.png" alt=""/></div>
+        <div class="photo">
+            <img id="data_photo" src="images/photo.png" alt=""  onerror="this.src='images/photo.png'" />
+            <p class="name"><span class="data_nickname">--</span></p>
+        </div>
+        <div class="liyao" id="circle_yq"><div class="liyaoCenter">快来币圈【<span class="data_circletitle">永恒传媒</span>】<br />里捡钱，手慢无！</div></div>
+        <div class="liyao" id="geren_yq"><div class="liyaoCenter"><span class="data_nickname">--</span>邀请你一起挣钱</div></div>
+        <div class="song"><img src="images/reg_song.png" alt=""/></div>
+        <div class="reginv_form">
+            <div class="input_mode pr">
+                <div class="input tel "><input type="tel"  autocomplete="off" id="tel" placeholder="手机号"/></div>
+                <div class="send_btn">获取验证码</div>
+            </div>
+            <div class="input_mode">
+                <div class="input code"><input id="code" type="tel"  autocomplete="off" placeholder="验证码"/></div>
+            </div>
+            <div class="reginv_btn"><img src="images/reg_btn.png" alt=""/></div>
+            <div class="line1"><img src="./images/reg_line.png" alt=""/></div>
+            <div class="reginv_name">方球APP</div>
+        </div>
+    </div>
+</div>
+<div class="ling_box none">
+    <div class="shadow"></div>
+    <div class="ling_center">
+        <div class="ling_top">恭喜获得50Xball奖励</div>
+        <p class="txt1">请安装方球APP查看哦~</p>
+        <p class="line3"></p>
+        <p class="txt2">同一手机号登录</p>
+        <a href="http://www.pgyer.com/2M6Q">少废话，快安装</a>
+    </div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+//上传头像返回的
+var photoId = "";
+var mobile = "";
+var code = "";
+var uid = "";
+var userToken = "";
+
+//根据邀请码，展示邀请人或圈子信息
+var reg_sd = GetHrefVal("regSd"); //个人
+var reg_cd = GetHrefVal("regCd"); //圈子
+if(reg_cd && reg_cd != 1 ){
+    $("#geren_yq").hide();
+}else{
+    $("#circle_yq").hide();
+}
+
+if(reg_sd || reg_cd){
+    if(!reg_sd){
+        reg_sd = "1";
+    }
+    if(!reg_cd){
+        reg_cd = "1";
+    }
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8"
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/info?uid="+reg_sd+"&cd="+reg_cd,
+        success:function(data){
+            console.log("通过个人分享码获取用户信息：");
+            console.log(data);
+            if(data.code == 0){
+                var nickName = data["data"].nickname;
+                var photourl = data["data"].photo_url;
+                var circletitle = data["data"].circle_title;
+
+                $(".data_nickname").text(nickName);
+                $(".data_circletitle").text(circletitle);
+                $("#data_photo").attr("src",IMG_SRC+photourl);
+
+            }else if(data.code == 10){
+                wrongTs("需要手机号码");
+            }else if(data.code == 11){
+                wrongTs("用户未找到");
+            }else{
+                console.log(data.code);
+            }
+
+        },
+        error:function (e) {
+            console.log("发送失败");
+        }
+    })
+
+}
+
+$(".reginv_btn").click(function(){
+//验证手机号的方法
+    mobile = $("#tel").val();
+    code = $("#code").val();
+    if(mobile){
+        if(isPoneAvailable(mobile) == false){
+            wrongTs("手机号格式不正确！");
+        }else{
+            if(code){
+                //登录
+                CodeLogin();
+            }else{
+                wrongTs("请输入验证码！");
+            }
+        }
+    }else{
+        wrongTs("请输入手机号！");
+    }
+});
+
+
+$(".send_btn").click(function(){
+    if($(this).hasClass("disable")){
+
+    }else{
+        sendCode();
+    }
+});
+$(".ling_box .shadow").click(function(e){
+    $(".ling_box").hide();
+});
+
+// 发送验证码接口
+function sendCode(){
+    var mobile = $("#tel").val();
+    if(mobile){
+        if(mobile.length == 11 && isPoneAvailable(mobile) == true){
+            codeTimeDown("60");
+            $.ajax({
+                headers: {
+                    Accept: "application/json; charset=utf-8"
+                },
+                type: 'post',
+                url: PORT_CONNECT+"/api/v1/sendcode?mobile="+mobile,
+                success:function(data){
+                    //console.log("发送验证码接口返回：");
+                    //console.log(data);
+                    if(data.code == 10){
+                        wrongTs("请输入手机号");
+                    }else{
+                        $("#mytel").text(mobile.substr(0,3)+"****"+mobile.substr(7));
+                    }
+
+                },
+                error:function (e) {
+                    console.log("发送失败");
+                }
+            })
+        }else{
+            wrongTs("手机号格式不正确");
+        }
+    }else{
+        wrongTs("请输入手机号");
+    }
+}
+
+
+//codeTimeDown("10");
+// 发送验证码倒计时
+var timer="";
+function codeTimeDown(i){
+    var i = i;
+    $(".send_btn").text(i+"s后重新发送");
+    $(".send_btn").addClass("disable");
+    timer = setInterval(function(){
+        if(i > 1){
+            i--;
+            $(".send_btn").text(i+"s后重新发送");
+        }else{
+            $(".send_btn").text("获取验证码");
+            $(".send_btn").removeClass("disable");
+            clearInterval(timer);
+        }
+    },1000)
+}
+
+// 输入验证码之后的登录/注册接口
+function CodeLogin(){
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8"
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/reg?mobile="+mobile+"&code="+code+"&sd="+reg_sd+"&cd="+reg_cd,
+        success:function(data){
+            console.log("注册接口返回：");
+            console.log(data);
+
+            if(data.code == 0){
+
+                $(".ling_box").show();
+                $(".send_btn").text("获取验证码");
+                $("#code").val("");
+                $(".send_btn").removeClass("disable");
+                clearInterval(timer);
+
+//                uid = data["data"].uid;
+//                userToken = data["data"].token;
+//                localStorage.setItem("userToken", data["data"].token);
+//                localStorage.setItem("uid", data["data"].uid);
+//
+//                location.href = "index.html";
+//
+//                var need_avatar = data["data"].need_avatar;
+//                if(need_avatar == 1){
+//                    //未设置用户名和头像
+//                    location.href = "regSet.html";
+//                }else{
+//                    //已经设置了用户名和头像
+//                    location.href = "index.html";
+//                }
+            }else if(data.code == 10){
+                wrongTs("需要手机号码");
+            }else if(data.code == 11){
+                wrongTs("需要用户昵称");
+            }else if(data.code == 12){
+                wrongTs("需要短信验证码");
+            }else if(data.code == 13){
+                wrongTs("需要密码");
+            }else if(data.code == 14){
+                wrongTs("昵称存在");
+            }else if(data.code == 15){
+                wrongTs("手机号码已存在");
+            }else if(data.code == 16){
+                wrongTs("获取验证的手机号与注册手机号不一致");
+            }else if(data.code == 17){
+                wrongTs("注册用户失败");
+            }else if(data.code == 18){
+                wrongTs("短信验证码不存在");
+            }else if(data.code == 19){
+                wrongTs("圈子未找到，不可注册");
+            }else{
+                wrongTs(data.message);
+            }
+
+
+        },
+        error:function (e) {
+            console.log("发送失败");
+        }
+    })
+
+}
+</script>
+</body>
+</html>

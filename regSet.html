@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div id="header" class="bb518">
+    <div class="main pr">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        设置
+    </div>
+</div>
+<div class="set_box">
+    <div class="set_upimg">
+        <img id="data_photourl" src="images/photo.png" onerror="this.src='images/photo.png'" alt=""/>
+    </div>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input id="file" type="file" accept="image/*" name="file" style="display: none;"/>
+    </form>
+    <div class="login_form main">
+        <div class="input_warp bb pr">
+            <span class="fl">手机号</span>
+            <div class="input">
+                <input id="data_mobile" maxlength="11"  type="tel" readonly value=""/>
+            </div>
+            <div class="login_close"></div>
+        </div>
+        <div class="input_warp pr">
+            <span class="fl">昵称</span>
+            <div class="input">
+                <input id="data_nickname"  type="text" placeholder="请设置昵称"/>
+            </div>
+            <div class="login_close"></div>
+        </div>
+    </div>
+
+    <div class="login_btn tc main mt30"><input type="button" id="data_modify_submit" value="保存"/></div>
+    <!--<div class="loginOut_btn tc main mt20"><input type="button" value="退出"/></div>-->
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+// 输入框输入检测
+$(".input input").on('input propertychange',function(){
+    var txt = $(this).val();
+    if(txt){
+        $(this).parent(".input").siblings(".login_close").addClass("grey");
+    }
+});
+$(".login_close").click(function(){
+    $(this).removeClass("grey");
+    $(this).siblings(".input").find("input").val("");
+});
+
+
+var photoId = "";
+//var photoUrl = "";
+
+/**
+ * 获取完整用户信息
+ * */
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/userinfo?uid="+uid,
+        type:"post",
+        success:function(data){
+           // console.log(data);
+            var data = data["data"];
+            $("#data_mobile").val(data.mobile.substr(0,3)+"****"+data.mobile.substr(7));
+            //$("#data_nickname").val(data.nickname);
+//            if(data.photo["photo_url"]){
+//                $("#data_photourl").attr("src",IMG_SRC+data.photo["photo_url"]);
+//            }
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+
+/**
+ * html5实现图片预览+上传功能
+ *
+ * **/
+    //图片预览
+    $(".set_upimg").click(function(){
+        $("#file").click();
+    });
+    $("#file").change(function (e) {
+        var file = e.target.files[0] || e.dataTransfer.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                // $(".set_upimg img").attr("src", this.result);
+                // 上传图片
+                upload();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    //    上传功能：把图片上传给接口功能
+    function upload(){
+        var formData = new FormData($('#uploadForm')[0]);
+        $.ajax({
+            headers: {
+                Accept: "application/json; charset=utf-8",
+                Authorization: "" + userToken
+            },
+            type: 'post',
+            url: PORT_CONNECT+"/api/v1/upload_photo",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            dataType:"json",
+            success:function(data){
+                console.log(data);
+                photoId = data["data"].id;
+                var photoUrl = data["data"].url;
+                $(".set_upimg img").attr("src", IMG_SRC+photoUrl);
+            },
+            error:function (e) {
+                console.log("上传失败");
+            }
+        })
+    }
+
+/**
+ * 提交修改数据
+ * */
+    $("#data_modify_submit").click(function(){
+        var nickname = $("#data_nickname").val();
+        if(!photoId){
+            wrongTs("请上传头像！");
+        }else if(!nickname){
+            wrongTs("请输入昵称！")
+        }else{
+            $.ajax({
+                headers: {
+                    Accept: "application/json; charset=utf-8",
+                    Authorization: "" + userToken
+                },
+                type: 'post',
+                url: PORT_CONNECT+"/api/v1/update_info?uid="+uid+"&photo_id="+photoId+"&nickname="+nickname,
+                success:function(data){
+                    console.log(data);
+                    location.href="index.html";
+
+                },
+                error:function (e) {
+                    console.log("上传失败");
+                }
+            })
+        }
+    })
+</script>
+</body>
+</html>

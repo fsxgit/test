@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div class="bar_nav">
+    <ul>
+        <li class="active"><a href="javascript:;">币吧</a></li>
+        <li><a href="news.html">资讯</a></li>
+        <li><a href="activity.html">活动</a></li>
+    </ul>
+</div>
+<div class="bar_box">
+    <div class="main ind_mode">
+        <h2 class="ind_tit">
+            <div class="main pr">币种</div>
+        </h2>
+        <div class="ind_self_cont main">
+            <ul id="data_bar_list">
+                <div class="requestLoadingTs">正在请求币种信息...</div>
+                <!--<li><a href="coin.html">-->
+                    <!--<div class="order fl">1</div>-->
+                    <!--<div class="kind fl">BTC</div>-->
+                    <!--<div class="num">$9075.5</div>-->
+                    <!--<div class="change"><i class="down"></i>-0.06%</div>-->
+                    <!--</a>-->
+                <!--</li>-->
+            </ul>
+        </div>
+    </div>
+    <p class="loadMore">点击加载更多...</p>
+</div>
+<div id="footer">
+    <ul>
+        <li><a href="index.html"><div class="my">我的方球</div></a></li>
+        <li><a href="bar.html"><div class="bar active">币吧</div></a></li>
+        <li><a href="circle.html"><div class="circle">币圈</div></a></li>
+    </ul>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+    var last_id = "";
+    /**
+     * 获取币吧数据
+     * state为0时，证明是进入页面时请求数据
+     *      为1时，证明是点击加载更多请求的数据
+     * lastId：加载更多时传的上次请求的最后一个id
+     * */
+    barLoad("0","");
+    function barLoad(state,lastId){
+        loading("1","");
+        var URL = "";
+        if(state == 0){
+            URL = PORT_CONNECT+"/api/v1/coins";
+        }else{
+            URL = PORT_CONNECT+"/api/v1/coins?last_id="+lastId;
+        }
+        $.ajax({
+            headers: {
+                Accept: "application/json; charset=utf-8",
+                Authorization: "" + userToken
+            },
+            url:URL,
+            type:"post",
+            success:function(data){
+                loading("0","");
+                console.log(data);
+                var data = data["data"]["coin"]["list"];
+                // console.log(data);
+                var str = '';
+                if(data){
+                    var len = data.length;
+                    $.each(data,function(i,v){
+                        if(i == len-1){
+                            last_id = v["info"].id;
+                        }
+                        var a = v["diff"].indexOf("+");
+                        var b = v["diff"].indexOf("-");
+                        var k = "";
+                        if(a >= 0){
+                            k = "up";
+                        }else if(b >= 0){
+                            k = "down";
+                        }
+
+                        str +='<li><a href="coin.html?id='+v["info"].id+'">';
+                        str +='<div class="order fl"></div>';
+                        str +='<div class="kind fl">'+v["info"].title+'</div>';
+                        str +='<div class="num">$'+v['price'].price+'</div>';
+                        str +='<div class="change"><i class="'+k+'"></i>'+ v["diff"]+'</div>';
+                        str +='</a>';
+                        str +='</li>';
+                    });
+                }
+                if(state == 0){
+                    $("#data_bar_list").html(str);
+                }else{
+                    $("#data_bar_list").append(str);
+                }
+                $(".order").each(function(i){
+                    $(this).text(i+1);
+                })
+            },
+            error:function(err){
+                loading(0,"");
+                console.log(err);
+            }
+
+        });
+    }
+    //    点击刷新更多
+    $(".loadMore").click(function(){
+        console.log(last_id);
+        barLoad("1",last_id);
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <title>方球</title>
+    <style>
+        body{background: #fff; text-align: center; padding:100px 0;}
+        input{border:1px solid #000; width: 80%; height: 40px; padding:10px; font-size: 20px;}
+        button{width: 80%; height: 40px; padding:10px; margin-top: 20px;}
+    </style>
+    <script>
+        //    设置page,判断当前页面是否是login页面，判断未登录的情况下需不需要进入到登陆页面
+        /**
+         * pageState 用于判断当前页面需不需要登陆才能访问的参数
+         * 0：不需要登录即可访问
+         * 1：需要登录才能访问
+         * */
+        localStorage.setItem("pageState", "0");
+    </script>
+</head>
+<body>
+<input type="tel" value="" placeholder="请输入手机号"/>
+<br />
+<button>删除</button>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+
+$("button").click(function(){
+    var tel = $("input[type='tel']").val();
+    delmobile(tel);
+});
+
+function delmobile(mobile){
+    var mobile = mobile;
+    if(mobile == "18310438375"){
+        mobile = "";
+        alert("非法手机号!");
+    }
+//    var mobile = "18238800887";
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8"
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/delmobile?mobile="+mobile,
+        success:function(data){
+            console.log("发送验证码接口返回：");
+            console.log(data);
+            if(data.code == 10){
+                wrongTs("手机号未找到");
+            }else{
+                wrongTs("手机号删除成功");
+            }
+
+        },
+        error:function (e) {
+            console.log("发送失败");
+        }
+    })
+}
+</script>
+</body>
+</html>

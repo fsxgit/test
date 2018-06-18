@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <title>方球</title>
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <style>
+        html,body{background: #fff;}
+        #telCode{ overflow: hidden;}
+        #telCode li{ display: block; float: left; font-size: 20px; text-align: center;}
+        #codeInput{border:1px solid #ccc; background: #eee; padding:10px 0; position: absolute; left:-1000px; top:-1000px;}
+    </style>
+    <script>
+        //    设置page,判断当前页面是否是login页面，判断未登录的情况下需不需要进入到登陆页面
+        /**
+         * pageState 用于判断当前页面需不需要登陆才能访问的参数
+         * 0：不需要登录即可访问
+         * 1：需要登录才能访问
+         * */
+        localStorage.setItem("pageState", "0");
+    </script>
+</head>
+<body>
+<!--<div id="header" class="bb518">-->
+    <!--<div class="main pr">-->
+        <!--<a class="back" href="javascript:history.go(-1);"></a>-->
+        <!--方球-->
+    <!--</div>-->
+<!--</div>-->
+<div class="reg_box">
+    <div class="reg_cont pr">
+        <div class="reg_step1 none">
+            <h1>您的手机号是?</h1>
+            <div class="input"><input id="tel" type="tel" autocomplete="off" placeholder="请输入手机号" maxlength="11"/></div>
+        </div>
+        <div class="reg_step2 none">
+            <h1>输入验证码</h1>
+            <p class="ts1">我们向您<i id="mytel">182****0887</i>手机号发送了验证码</p>
+            <input id="codeInput"  autocomplete="off" maxlength="6" type="tel"/>
+            <ul id="telCode">
+                <li class="input"></li>
+                <li class="input"></li>
+                <li class="input"></li>
+                <li class="input"></li>
+                <li class="input"></li>
+                <li class="input"></li>
+                <!--<li class="input"><input class="codeinput" autofocus type="tel" maxlength="1"/></li>-->
+                <!--<li class="input"><input class="codeinput" type="tel" maxlength="1"/></li>-->
+                <!--<li class="input"><input class="codeinput" type="tel" maxlength="1"/></li>-->
+                <!--<li class="input"><input class="codeinput" type="tel" maxlength="1"/></li>-->
+                <!--<li class="input"><input class="codeinput" type="tel" maxlength="1"/></li>-->
+                <!--<li class="input"><input class="codeinput" type="tel" maxlength="1"/></li>-->
+            </ul>
+            <p class="send"><span class="ts" id="timeNum"><i>60</i>s后重新发送验证码</span><span class="resend none">重新发送</span></p>
+
+        </div>
+        <div class="reg_step3 none">
+            <h1>设置头像及昵称</h1>
+            <div class="inputs_box">
+                <div class="img" id="upload">
+                    <span class="ca"></span>
+                    <img src="images/moren_tx.png" alt=""/>
+                </div>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input id="file" type="file" accept="image/*" name="file" style="display: none;"/>
+                </form>
+                <div class="mode tc">
+                    <p>昵称</p>
+                    <div class="input"><input id="nickname" autocomplete="off" type="text"  placeholder="请输入昵称"/></div>
+                </div>
+                <!--<div class="mode">-->
+                    <!--<p>请输入密码</p>-->
+                    <!--<div class="input"><input type="text" placeholder="请输入密码"/></div>-->
+                <!--</div>-->
+                <!--<div class="mode">-->
+                    <!--<p>请确认密码</p>-->
+                    <!--<div class="input"><input type="text" placeholder="请确认密码"/></div>-->
+                <!--</div>-->
+            </div>
+        </div>
+
+        <div class="reg_btn"><img src="images/next0.png" alt=""/><img src="images/next1.png" alt=""/></div>
+    </div>
+
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+//上传头像返回的
+var photoId = "";
+var mobile = "";
+var uid = "";
+var userToken = "";
+
+
+//删除已经注册的手机号
+//url: http://test.api.chainbba.com/api/v1/delmobile?mobile=17729292076
+//delmobile();
+function delmobile(){
+//    var mobile = "15003123217";
+    var mobile = "18238800887";
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8"
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/delmobile?mobile="+mobile,
+        success:function(data){
+            console.log("发送验证码接口返回：");
+            console.log(data);
+            if(data.code == 10){
+                wrongTs("手机号未找到");
+            }else{
+                wrongTs("手机号删除成功");
+            }
+
+        },
+        error:function (e) {
+            console.log("发送失败");
+        }
+    })
+}
+
+
+$("body").on("focus","input",function(){
+    $(this).parent(".input").addClass("active");
+});
+$("body").on("blur","input",function(){
+    $(this).parent(".input").removeClass("active");
+});
+//验证手机号的方法
+$("#tel").on('input propertychange',function(){
+    var val = $(this).val();
+    mobile = val;
+    if(val.length == 11){
+        if(isPoneAvailable(val) == false){
+            wrongTs("手机号格式不正确！");
+        }else{
+            $(".reg_btn").addClass("active");
+        }
+    }else{
+        $(".reg_btn").removeClass("active");
+    }
+});
+
+
+/**
+ * 控制每一步显示的方法
+ *
+ * */
+var stepState = 1;
+steps();
+function steps(){
+    if(stepState == 1){
+        $(".reg_step2").hide();
+        $(".reg_step3").hide();
+
+        // 显示输入手机号界面
+        $(".reg_step1").show();
+    }else if(stepState == 2){
+        $(".reg_step1").hide();
+        $(".reg_step3").hide();
+        $(".reg_btn").removeClass("active");
+        // $(".codeinput:nth-of-type(1)").focus();
+
+        // 显示输入验证码界面
+        $(".reg_step2").show();
+        codeTimeDown("59");
+    }else if(stepState == 3){
+        $(".reg_step1").hide();
+        $(".reg_step2").hide();
+        $(".reg_btn").removeClass("active");
+        // 显示设置头像、昵称界面
+        $(".reg_step3").show();
+    }
+}
+$(".reg_btn").click(function(){
+    if($(this).hasClass("active")){
+        console.log("状态值是="+stepState);
+        if(stepState == 1){
+            //发送验证码
+            sendCode();
+            stepState = 2;
+        }else if(stepState == 2){
+            // 判断是登陆首页还是到设置头像昵称页面
+            CodeLogin();
+            //stepState = 3;
+        }else if(stepState == 3){
+            //设置头像、昵称
+            setNicknamePhoto();
+        }
+        console.log("状态值是="+stepState);
+        //  steps();
+    }
+});
+
+//验证码四个输入框之间的替换
+$(".codeinput123").each(function(i0){
+    var That = $(this);
+    That.click(function(){
+        var k = 0;
+        $(".codeinput").each(function(i1){
+            if(i0 > i1 && k == 0){
+                var This = $(this);
+                var code = This.val();
+                if(!code){
+                    This.focus();
+                    k = 1;
+                }
+            }
+
+        });
+    });
+
+});
+
+$(".codeinput").on('input propertychange',function(){
+    var val = $(this).val();
+    if(val){
+//        console.log(val);
+//        var That = $(this).parent("li").next().find("input");
+//        That.focus();
+
+        var k = 0;
+        $(".codeinput").each(function(){
+            var This = $(this);
+            var code = This.val();
+            if(!code){
+                k = 1;
+            }
+        });
+        if(k == 0){
+            $(".reg_btn").addClass("active");
+        }else{
+            $(".reg_btn").removeClass("active");
+        }
+    }
+});
+
+// 发送验证码接口
+function sendCode(){
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8"
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/sendcode?mobile="+mobile,
+        success:function(data){
+            console.log("发送验证码接口返回：");
+            console.log(data);
+            if(data.code == 10){
+                wrongTs("请输入手机号");
+            }else{
+                $("#mytel").text(mobile.substr(0,3)+"****"+mobile.substr(7));
+                steps();
+            }
+
+        },
+        error:function (e) {
+            console.log("发送失败");
+        }
+    })
+
+
+}
+
+$(".resend").click(function(){
+    console.log("重新发送了验证码");
+    codeTimeDown("59");
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8"
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/sendcode?mobile="+mobile,
+        success:function(data){
+            console.log("发送验证码接口返回：");
+            console.log(data);
+            if(data.code == 10){
+                wrongTs("请输入手机号");
+            }else{
+//                codeTimeDown("59");
+            }
+
+        },
+        error:function (e) {
+            console.log("发送失败");
+        }
+    })
+});
+
+//codeTimeDown("10");
+// 发送验证码倒计时
+function codeTimeDown(i){
+    $("#timeNum").show();
+    $(".resend").hide();
+    var i = i;
+    $("#timeNum i").text(i);
+    var timer = setInterval(function(){
+        if(i > 1){
+            i--;
+            $("#timeNum i").text(i);
+        }else{
+            $("#timeNum").hide();
+            $(".resend").show();
+            clearInterval(timer);
+        }
+    },1000)
+}
+
+// 输入验证码之后的登录/注册接口
+function CodeLogin(){
+    var code = "";
+    $(".input").each(function(){
+        var This = $(this);
+        code += This.text();
+    });
+    console.log("验证码为="+code);
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8"
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/reg?mobile="+mobile+"&code="+code,
+        success:function(data){
+            console.log("注册接口返回：");
+            console.log(data);
+
+            if(data.code == 0){
+                uid = data["data"].uid;
+                userToken = data["data"].token;
+                localStorage.setItem("userToken", data["data"].token);
+                localStorage.setItem("uid", data["data"].uid);
+
+                var need_avatar = data["data"].need_avatar;
+                //return false;
+                if(need_avatar == 1){
+                    //未设置用户名和头像
+                    stepState = 3;
+                    steps();
+                }else{
+                    //已经设置了用户名和头像
+                    location.href = "index.html";
+                }
+            }else if(data.code == 10){
+                wrongTs("需要手机号码");
+            }else if(data.code == 11){
+                wrongTs("需要用户昵称");
+            }else if(data.code == 12){
+                wrongTs("需要短信验证码");
+            }else if(data.code == 13){
+                wrongTs("需要密码");
+            }else if(data.code == 14){
+                wrongTs("昵称存在");
+            }else if(data.code == 15){
+                wrongTs("手机号码已存在");
+            }else if(data.code == 16){
+                wrongTs("获取验证的手机号与注册手机号不一致");
+            }else if(data.code == 17){
+                wrongTs("注册用户失败");
+            }else if(data.code == 18){
+                wrongTs("短信验证码不存在");
+            }else if(data.code == 19){
+                wrongTs("圈子未找到，不可注册");
+            }
+
+
+        },
+        error:function (e) {
+            console.log("发送失败");
+        }
+    })
+
+}
+
+//  注册第三步
+// 第三步判断信息是不是已经完善，是不是已经能够提交登录了
+function isNext(){
+    var nick = $("#nickname").val();
+    if(nick && photoId){
+        $(".reg_btn").addClass("active");
+    }else{
+        $(".reg_btn").removeClass("active");
+    }
+}
+$("#nickname").on('input propertychange',function(){
+    var val = $(this).val();
+    if(val){
+        isNext();
+    }
+});
+//  上传头像接口
+
+/**
+ * html5实现图片预览+上传功能
+ *
+ * **/
+    //图片预览
+$("#upload").click(function(){
+    $("#file").click();
+});
+$("#file").change(function (e) {
+    var file = e.target.files[0] || e.dataTransfer.files[0];
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            //$("#upload img").attr("src", this.result);
+            // 上传图片
+            upload();
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+//    上传功能：把图片上传给接口功能
+function upload(){
+    var formData = new FormData($('#uploadForm')[0]);
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        type: 'post',
+        url: PORT_CONNECT+"/api/v1/upload_photo",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        dataType:"json",
+        success:function(data){
+            console.log(data);
+            photoId = data["data"].id;
+            var photoUrl = data["data"].url;
+            $("#upload img").attr("src", IMG_SRC+photoUrl);
+            isNext();
+        },
+        error:function (e) {
+            console.log("上传失败");
+        }
+    })
+}
+
+/**
+ * 设置头像和昵称
+ * */
+function setNicknamePhoto(){
+    var nickname = $("#nickname").val();
+    console.log(userToken);
+    if(!photoId){
+        wrongTs("请上传头像！");
+    }else if(!nickname){
+        wrongTs("请填写昵称！")
+    }else{
+        $.ajax({
+            headers: {
+                Accept: "application/json; charset=utf-8",
+                Authorization: "" + userToken
+            },
+            type: 'post',
+            url: PORT_CONNECT+"/api/v1/update_info?uid="+uid+"&photo_id="+photoId+"&nickname="+nickname,
+            success:function(data){
+                console.log("设置头像和昵称接口返回：");
+                console.log(data);
+
+                location.href="index.html";
+
+            },
+            error:function (e) {
+                console.log("上传失败");
+            }
+        })
+    }
+}
+</script>
+<script>
+    $("#telCode").click(function(){
+        $("#codeInput").focus();
+    });
+    var len1 = $("#telCode li").length;
+    //验证手机号的方法
+    $("#codeInput").on('input propertychange',function(){
+        var This = $(this);
+        var code = $(this).val();
+        var reg = /[^0-9]/ig;
+        code = code.replace(reg,"");
+        This.val(code);
+        //console.log(code);
+        var len2 = code.length;
+        if(len1 == len2){
+            $(".reg_btn").addClass("active");
+        }else{
+            $(".reg_btn").removeClass("active");
+        }
+        //把input里面的数据给到每一个li里面
+        var arr =[];
+        arr=code.split("");
+
+        $("#telCode li").each(function(i){
+            if(arr[i]){
+                $("#telCode li:nth-of-type("+(i+1)+")").text(arr[i]);
+            }else{
+                $("#telCode li:nth-of-type("+(i+1)+")").text("");
+            }
+        });
+
+    });
+</script>
+</body>
+</html>

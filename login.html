@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <title>方球</title>
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <script>
+        //    设置page,判断当前页面是否是login页面，判断未登录的情况下需不需要进入到登陆页面
+        /**
+         * pageState 用于判断当前页面需不需要登陆才能访问的参数
+         * 0：不需要登录即可访问
+         * 1：需要登录才能访问
+         * */
+        localStorage.setItem("pageState", "0");
+    </script>
+</head>
+<body>
+<!--loading-->
+<!--<div class="mint-indicator">-->
+    <!--<div class="mint-indicator-wrapper" style="padding: 15px;">-->
+        <!--<span class="mint-indicator-spin">-->
+            <!--<div class="mint-spinner-snake"></div>-->
+        <!--</span>-->
+        <!--<span class="mint-indicator-text">loading...</span>-->
+    <!--</div>-->
+    <!--<div class="mint-indicator-mask"></div>-->
+<!--</div>-->
+<!--loading end-->
+
+
+<div class="login_banner"></div>
+<div class="login_slogon tc">“链链不忘，币有回响”</div>
+<div class="login_form main">
+    <div class="input_warp bb pr">
+        <span class="fl">手机号</span>
+        <div class="input">
+            <input id="user" maxlength="11" class="tel" type="tel" placeholder="请输入手机号" />
+        </div>
+        <div class="login_close"></div>
+    </div>
+    <div class="input_warp pr">
+        <span class="fl">密码</span>
+        <div class="input">
+            <input id="pass" class="pass" type="password" placeholder="请输入密码" />
+        </div>
+        <div class="login_close"></div>
+    </div>
+</div>
+<div class="login_btn main tc"><input id="login_btn" type="button" value="登录"/></div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+// 登录
+    $("#login_btn").click(function(){
+        var user = $("#user").val();
+        var pass = $("#pass").val();
+        var isSubmit = false;
+
+        if(!user){
+            wrongTs("请输入手机号！");
+        }else if(!pass){
+            wrongTs("请输入密码！");
+        }else{
+            if(isPoneAvailable(user) == false){
+                wrongTs("手机号格式不正确！");
+            }else{
+                isSubmit = true;
+            }
+        }
+        if(isSubmit){
+            loading(1,"");
+            $.ajax({
+                url:PORT_CONNECT+"/api/v1/login?mobile="+user+"&password="+pass,
+                type:"post",
+                success: function(data){
+//                    console.log(data);
+                    loading(0,"");
+                    if(data.code == "10"){
+                        // 需要手机号码
+                        wrongTs("请输入手机号！");
+
+                    }else if(data.code == "11"){
+                        // 需要密码
+                        wrongTs("请输入密码！");
+
+                    }else if(data.code == "12"){
+                        // 密码错误
+                        wrongTs("密码错误！");
+                    }else if(data.code == "14"){
+                        // 密码错误
+                        wrongTs("账号未注册！");
+                    }else{
+                        // 登录成功
+//                        localStorage.setItem("user", user);
+//                        localStorage.setItem("pass", pass);
+//                        console.log(data["data"].uid);
+                        localStorage.setItem("userToken", data["data"].token);
+                        localStorage.setItem("uid", data["data"].uid);
+                        location.href = "index.html";
+                    }
+                },
+                error:function(err){
+                    loading(0,"");
+                    console.log("请求失败！");
+                }
+            });
+        }
+    });
+
+// 输入框输入检测
+    $(".input input").on('input propertychange',function(){
+        if( $('.input input:focus').length !=0 ){
+            var txt = $(this).val();
+            if(txt){
+                $(this).parent(".input").siblings(".login_close").addClass("grey");
+            }
+        }
+    });
+    $(".input input").on('blur',function(){
+        var This = $(this);
+        setTimeout(function(){
+            This.parent(".input").siblings(".login_close").removeClass("grey");
+        },200);
+    });
+    $(".input input").on('focus',function(){
+        var This = $(this);
+        var txt = This.val();
+        if(txt){
+            This.parent(".input").siblings(".login_close").addClass("grey");
+        }
+    });
+    $(".login_close").click(function(){
+        $(this).removeClass("grey");
+        $(this).siblings(".input").find("input").val("");
+    });
+</script>
+</body>
+</html>

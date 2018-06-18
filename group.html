@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div id="group_header">
+    <div class="main pr">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        <span class="tit" id="data_group_tit"></span>
+        <!--<p id="data_member"><a class="invite" href="invite.html">邀请</a></p>-->
+        <span id="quitGroup" class="fr none" style="color: red; margin-right: 50px; margin-top: 10px;">退出</span>
+        <p id="data_member"></p>
+    </div>
+    <div class="groud_lord"><span class="name" id="data_group_author"></span>创建于<span class="time" id="data_group_createtime"></span><span class="num" id="data_group_members"></span>人</div>
+    <div class="group_nav">
+        <div class="nav">动态(<span id="data_group_dynamic"></span>)</div>
+    </div>
+</div>
+<div class="group_box">
+    <ul id="data_group_comment_list">
+        <!--<li><a href="comment.html">-->
+            <!--<div class="main">-->
+                <!--<div class="top">-->
+                    <!--<div class="img"><img src="images/photo.jpg" alt=""/></div>-->
+                    <!--<span class="name">山清</span>-->
+                    <!--<span class="time">2周前</span>-->
+                <!--</div>-->
+                <!--<div class="txt">请教圈主，比特币能梭哈吗？</div>-->
+                <!--<div class="imgs_box">-->
+                    <!--<div class="imgbg"-->
+                         <!--style="background: url('./images/goods-1.jpg') no-repeat center center; background-size:contain; ">-->
+                        <!--<img src="" alt=""/></div>-->
+                    <!--<div class="imgbg"-->
+                         <!--style="background: url('./images/goods-1.jpg') no-repeat center center; background-size:contain; ">-->
+                        <!--<img src="" alt=""/></div>-->
+                    <!--<div class="imgbg"-->
+                         <!--style="background: url('./images/goods-1.jpg') no-repeat center center; background-size:contain; ">-->
+                        <!--<img src="" alt=""/></div>-->
+                    <!--<div class="imgbg"-->
+                         <!--style="background: url('./images/goods-1.jpg') no-repeat center center; background-size:contain; ">-->
+                        <!--<img src="" alt=""/></div>-->
+                    <!--<div class="imgbg"-->
+                         <!--style="background: url('./images/goods-1.jpg') no-repeat center center; background-size:contain; ">-->
+                        <!--<img src="" alt=""/></div>-->
+                <!--</div>-->
+                <!--<div class="zans">-->
+                    <!--<div class="men">-->
+                        <!--<span>鸭子</span>-->
+                        <!--<span>石头</span>-->
+                        <!--<span>大树</span>-->
+                        <!--<i>等5人</i>-->
+                    <!--</div>-->
+                    <!--<div class="zan"><img src="images/praise.png" alt=""/></div>-->
+                <!--</div>-->
+                <!--<div class="bot bt">-->
+                    <!--<p>石头：风无想要作谁人的风吹想要为家己自由飞无想要作谁人的风吹想要为家己自由飞</p>-->
+                    <!--<p>石头：风无想要作谁人的风吹想要为家己自由飞无想要作谁人的风吹想要为家己自由飞</p>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--</a>-->
+        <!--</li>-->
+    </ul>
+    <p class="loadMore">点击加载更多...</p>
+</div>
+<div class="group_btn"><a class="main" id="data_publish_href" href="javascript:;">发布动态</a></div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+
+// 获取用户的分享id
+var UseShareUid = localStorage.getItem("UseShareUid");
+//获取圈子分享id
+var CircleShareUid = "";
+var last_id = "";
+/**
+ * 获取一个圈子的数据
+ *  state为0时，证明是进入页面时请求数据
+ *      为1时，证明是点击加载更多请求的数据
+ *  lastId：加载更多时传的上次请求的最后一个id
+ * **/
+var groupId = GetHrefVal("id");
+var circle_timeline_id = "";
+
+updateContent("0","");
+
+function updateContent(state,lastId){
+    loading("1","");
+    var URL = "";
+    if(state == 0){
+        URL = PORT_CONNECT+"/api/v1/circle/"+groupId+"?uid="+uid;
+    }else{
+        URL = PORT_CONNECT+"/api/v1/circle/"+groupId+"?uid="+uid+"&last_id="+lastId;
+    }
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:URL,
+        type:"post",
+        success:function(data){
+            loading("0","");
+            //console.log(data);
+            var data = data["data"];
+            var groupInfo = data["info"];
+            var groupTimeline = data["timeline"];
+            if(state == 0){
+                CircleShareUid = groupInfo.share_id;
+//            CircleShareUid = groupInfo["author"].share_uid;
+
+//            console.log(CircleShareUid);
+//            console.log(UseShareUid);
+
+                if(data.is_owner == 1){
+                    // 只有圈主，才能发布动态
+                    $("#data_publish_href").attr("href","publish.html?circleId="+groupInfo.id);
+                }
+                if(data.is_member == 1){
+                    // 是成员的时候，显示邀请；不是成员的时候显示加入
+                    $("#data_member").html('<a class="invite" href="invite.html?UseShareUid='+UseShareUid+'&CircleShareUid='+CircleShareUid+'">邀请</a>');
+                }else{
+                    $("#data_member").html('<a class="invite" id="add_circle" href="javascript:;">加入</a>');
+                }
+
+
+                $("#data_group_tit").text(groupInfo.title);
+                localStorage.setItem("circlename", groupInfo.title);
+                $("#data_group_author").text(groupInfo["author"].nickname);
+                $("#data_group_createtime").text(groupInfo.created_at.split(" ")[0]);
+                $("#data_group_members").text(data.member_count);
+                $("#data_group_dynamic").text(groupTimeline.length);
+            }
+
+            var str = '';
+            var len = groupTimeline.length;
+            $.each(groupTimeline,function(i,v){
+                if(i == len-1){
+                    last_id = v.id;
+                }
+                str +='<li><a href="comment.html?groupid='+ v.circle_id+'&id='+ v.id+'">';
+                str +='<div class="main">';
+                str +='<div class="top">';
+                str +='<div class="img"><img src="'+IMG_SRC+v["author"]["photo"].photo_url+'" alt="" onerror="this.src=\'images/photo.png\'" /></div>';
+                str +='<span class="name">'+v["author"].nickname+'</span>';
+                str +='<span class="time">'+getDateDiff(v.created_at)+'</span>';
+                str +='</div>';
+                str +='<div class="txt">'+v.content+'</div>';
+
+
+                str +='<div class="imgs_box">';
+                for(var i = 0; i< v["photo"].length; i++){
+                    var photos = v["photo"][i];
+//                    str +='<div class="imgbg" style="background: url(\''+IMG_SRC+photos["photo"].photo_url+'\') no-repeat center center; background-size:contain; "></div>';
+                    str +='<div class="imgbg"><img src="'+IMG_SRC+photos["photo"].photo_url+'" alt="" onerror="this.src=\'images/photo.png\'" /></div>';
+                }
+
+                str +='</div>';
+
+
+                str +='<div class="zans">';
+                str +='<div class="men">';
+                for(var i = 0; i< v["like"].length; i++){
+                    var author = v["like"][i]["author"];
+                    str +='<span>'+author.nickname+'</span>';
+                }
+                str +='<i>等'+v.like_total+'人</i>';
+                str +='</div>';
+                str +='<div class="zan data_zan" data-timeline="'+v.circle_id+'" data-timelineid="'+v.id+'"><img src="images/praise.png" alt=""/></div>';
+                str +='</div>';
+                str +='<div class="bot bt">';
+                for(var i = 0; i< v["comment"].length; i++){
+                    str +='<p>'+v["comment"][i]["author"].nickname+'：'+v["comment"][i].content+'</p>';
+                }
+                str +='</div>';
+                str +='</div>';
+                str +='</a>';
+                str +='</li>';
+
+            });
+
+            if(state == 0){
+                $("#data_group_comment_list").html(str);
+            }else{
+                $("#data_group_comment_list").append(str);
+            }
+
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+}
+
+/**
+ *  赞圈子动态
+ *
+ * */
+$("#data_group_comment_list").on("click",".data_zan",function(event){
+    event.preventDefault();
+//    var circle_timeline = $(this).data("timeline");
+    var circle_timeline_id = $(this).data("timelineid");
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/circle_timeline/"+groupId+"/like?circle_timeline_id="+circle_timeline_id+"&uid="+uid,
+        type:"post",
+        success:function(data){
+            loading(0,"");
+            //console.log(data);
+            if(data.code == 10){
+                console.log("需要传入 circle_timeline_id");
+            }else  if(data.code == 11){
+                console.log("需要传入 uid");
+            }else  if(data.code == 12){
+                wrongTs("不可重复赞圈子动态");
+            }else  if(data.code == 13){
+                wrongTs("非会员不可赞圈子动态");
+            }else{
+                console.log("赞成功！");
+                updateContent("0","");
+            }
+        },
+        error:function(err){
+            loading(0,"");
+            console.log(err);
+        }
+    });
+});
+
+
+/**
+ *  加入一个圈子
+ *
+ * */
+$("#data_member").on("click","#add_circle",function(){
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/circle/"+groupId+"/join?uid="+uid,
+        type:"post",
+        success:function(data){
+            loading(0,"");
+            //console.log(data);
+            if(data.code == 10){
+                console.log("需要传入 uid");
+            }else  if(data.code == 11){
+                wrongTs("您已是当前圈子的会员");
+            }else{
+                console.log("加入圈子成功！");
+                $("#data_member").html('<a class="invite" href="invite.html?UseShareUid='+UseShareUid+'&CircleShareUid='+CircleShareUid+'">邀请</a>');
+            }
+        },
+        error:function(err){
+            loading(0,"");
+            console.log(err);
+        }
+    });
+});
+
+//    点击刷新更多
+$(".loadMore").click(function(){
+    console.log(last_id);
+    updateContent("1",last_id);
+});
+
+
+//    退出圈子
+$("#quitGroup").click(function(){
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/circle/"+groupId+"/quit?uid="+uid,
+        type:"post",
+        success:function(data){
+            //console.log(data);
+            if(data.code == 10){
+                console.log("需要传入 uid");
+            }else  if(data.code == 11){
+                wrongTs("您已是当前圈子的会员");
+            }else{
+                console.log("退出圈子成功！");
+                wrongTs("退出圈子成功！");
+                location.reload();
+
+            }
+        },
+        error:function(err){
+            console.log(err);
+        }
+    });
+})
+</script>
+</body>
+</html>

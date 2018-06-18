@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div id="header" class="bb518">
+    <div class="main pr top">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        方球
+    </div>
+</div>
+<div class="activity_detail_box">
+    <div class="activity_detail_top">
+        <div class="main tc">
+            <h3 class="tit" id="data_activity_tit"></h3>
+            <div class="info"><span class="info_time" id="data_activity_time"></span> <span class="info_site" id="data_activity_site"></span></div>
+            <div class="author"><img id="data_activity_authorimg" src="images/photo.png" onerror="this.src='images/photo.png'" alt=""/><span class="author_name" id="data_activity_author"></span><span class="author_time" id="data_activity_authortime"></span></div>
+        </div>
+    </div>
+    <div class="activity_detail_cont">
+        <div class="main" id="data_activity_content">
+        <!--“2018 GBCS全球区块链共识峰会”旨在加强全球金融行业者们的交流，达成真正的区块链科技共识，推动全球金融科技的发展。此次峰会规模宏大，盛况空前，将以“共识区块，链接未来”为主题盛大召开。-->
+        </div>
+    </div>
+    <div class="activity_detail_interest tc"><span id="data_isinterested"><i id="data_interest"></i>人有兴趣</span></div>
+    <div class="activity_detail_comment">
+        <ul id="data_activity_comment">
+            <!--<li>-->
+                <!--<div class="img"><img src="images/photo.jpg" alt=""/></div>-->
+                <!--<div class="right_box">-->
+                    <!--<p class="comment_name">旺达</p>-->
+                    <!--<p class="comment_time">2周前</p>-->
+                    <!--<p class="comment_txt">有没有媒体圈子？我需要欢迎大家推荐有没有媒体圈子？我需要欢迎大家推荐有没有媒体圈子？我需要欢迎大家推荐有没有媒体圈子？我需要欢迎大家推荐</p>-->
+                <!--</div>-->
+            <!--</li>-->
+        </ul>
+    </div>
+    <p class="loadMore">点击加载更多...</p>
+</div>
+<div class="comment_bot">
+    <div class="main pr">
+        <div class="input"><input type="text" id="data_txt" placeholder="回复"/></div>
+        <div class="submit" id="data_submit"></div>
+    </div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+
+var last_id = "";
+/**
+ * 获取一个活动的信息
+ *
+ * */
+var id = GetHrefVal("id");
+var entity_type = "";
+commentLoad("0","");
+function commentLoad(state,lastId){
+    loading(1,"");
+    var URL = "";
+    if(state == 0){
+        URL = PORT_CONNECT+"/api/v1/activity/"+id+"?uid="+uid;
+    }else{
+        URL = PORT_CONNECT+"/api/v1/activity/"+id+"?uid="+uid+"&last_id="+lastId;
+    }
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:URL,
+        type:"post",
+        success:function(data){
+            console.log(data);
+            if(data.code == 10){
+                wrongTs("活动未找到");
+            }else{
+                var data = data["data"];
+                var ActivityComments = data["comment"]; //活动评论
+
+                if(state == 0){
+                    var ActivityInfo = data["info"]; //活动信息
+                    var ActivityContent = data["content"]; //活动内容
+
+                    $("#data_activity_tit").text(ActivityInfo.title);
+                    $("#data_activity_time").text(ActivityInfo.created_at);
+                    $("#data_activity_author").text(ActivityInfo["author"].nickname);
+                    $("#data_activity_authorimg").attr("src",IMG_SRC + ActivityInfo["author"]["photo"].photo_url);
+                    $("#data_activity_site").text(ActivityInfo["location"].address);
+                    $("#data_activity_authortime").text(getDateDiff(ActivityInfo.created_at));
+                    $("#data_interest").text(data.interest);
+                    entity_type = ActivityContent[0].entity_type;
+                    // 是否感兴趣
+                    if(data.is_interested == 1){
+                        $("#data_isinterested").addClass("active");
+                    }
+                    // 活动内容
+                    var strContent="";
+                    $.each(ActivityContent,function(i,v){
+                        strContent += v.content;
+                    });
+                    $("#data_activity_content").html(strContent);
+                }
+
+                // 新闻评论
+                var strComment="";
+                var len = ActivityComments.length;
+                $.each(ActivityComments,function(i,v){
+                    if(i == len-1){
+                        last_id = v.id;
+                    }
+                    strComment +='<li>';
+                    strComment +='<div class="img"><img src="'+IMG_SRC+v["author"]["photo"].photo_url+'" alt="" onerror="this.src=\'images/photo.png\'" /></div>';
+                    strComment +='<div class="right_box">';
+                    strComment +='<p class="comment_name">'+v["author"].nickname+'</p>';
+                    strComment +='<p class="comment_time">'+getDateDiff(v.created_at)+'</p>';
+                    strComment +='<p class="comment_txt">'+v.content+'</p>';
+                    strComment +='</div>';
+                    strComment +='</li>';
+                });
+                if(state == 0){
+                    $("#data_activity_comment").html(strComment);
+                }else{
+                    $("#data_activity_comment").append(strComment);
+                }
+
+            }
+            loading(0,"");
+        },
+        error:function(err){
+            loading(0,"");
+            console.log(err);
+        }
+
+    });
+}
+
+/**
+ * 对活动感兴趣
+ *
+ * */
+
+$("#data_isinterested").click(function(){
+    console.log(userToken);
+
+    $.ajax({
+        headers:{
+            Accept: "application/json; charset=utf-8",
+            Authorization: userToken
+        },
+        url:PORT_CONNECT+"/api/v1/activity_interest?activity_id="+id+"&uid="+uid,
+        type:"post",
+        success:function(data){
+            console.log(data);
+            if(data.code == 10){
+                console.log("需要传入 activity_id");
+            }else if(data.code == 11){
+                console.log("需要传入 uid");
+            }else if(data.code == 11){
+                wrongTs("您已经对活动感兴趣");
+            }else if(data.code == 401){
+                wrongTs("未授权");
+            }else{
+                var N = parseInt($("#data_interest").text())+1;
+                $("#data_interest").text(N);
+                $("#data_isinterested").addClass("active");
+            }
+        },
+        error:function(err){
+            console.log(err);
+        }
+    })
+});
+
+
+
+/**
+ * 对活动进行评论
+ *
+ * */
+
+$("#data_submit").click(function(){
+    var content = $("#data_txt").val();
+    if(content){
+        loading(1,"");
+        $.ajax({
+            headers: {
+                Accept: "application/json; charset=utf-8",
+                Authorization: "" + userToken
+            },
+            url:PORT_CONNECT+"/api/v1/comment/"+id,
+            data:{
+                entity_type: entity_type,
+                aid: id,
+                uid: uid,
+                content: content
+            },
+            type:"post",
+            success:function(data){
+                loading(0,"");
+                if(data.code == 10){
+
+                }else if(data.code == 11){
+                    console.log("需要传入 entity_type");
+                }else if(data.code == 14){
+                    console.log("不能发送重复评论");
+                }else if(data.code == 15){
+                    wrongTs("已达上限");
+                }else{
+                    window.location.reload();
+                }
+            },
+            error:function(err){
+                loading(0,"");
+                console.log(err);
+            }
+
+        });
+
+    }else{
+        wrongTs("内容不能为空");
+    }
+});
+
+
+//    点击刷新更多
+$(".loadMore").click(function(){
+    console.log(last_id);
+    commentLoad("1",last_id);
+})
+</script>
+</body>
+</html>

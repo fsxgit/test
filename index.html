@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<!--loading-->
+<!--<div class="mint-indicator">-->
+    <!--<div class="mint-indicator-wrapper" style="padding: 15px;">-->
+        <!--<span class="mint-indicator-spin">-->
+            <!--<div class="mint-spinner-snake"></div>-->
+        <!--</span>-->
+        <!--<span class="mint-indicator-text">loading...</span>-->
+    <!--</div>-->
+    <!--<div class="mint-indicator-mask"></div>-->
+<!--</div>-->
+<!--loading end-->
+<div class="ind_box">
+    <div class="ind_header">
+        <div class="main pr">
+            <div class="left_box">
+                <div class="photo"><img id="data_photourl" src="images/photo.png" onerror="this.src='images/photo.png'" alt=""/></div>
+                <span class="name" id="data_nickname"></span>
+            </div>
+            <div class="set"><a href="set.html"><img src="images/setting.png" alt=""/></a></div>
+        </div>
+    </div>
+    <div class="ind_asset main oh pr">
+        <div class="asset_mode">
+            <p>等级</p>
+            <p id="data_level">-</p>
+        </div>
+        <div class="asset_mode">
+            <p>财富</p>
+            <p id="data_coins">--</p>
+        </div>
+        <div class="exchange">兑换</div>
+    </div>
+    <div class="main ind_mode">
+        <h2 class="ind_tit">
+            <div class="main pr">自选币 <span class="add-icon none">添加</span></div>
+        </h2>
+        <div class="ind_self_cont main">
+            <ul id="data_self_coin_list">
+                <div class="requestLoadingTs">正在请求自选币信息...</div>
+                <!--<li><a href="coin.html">-->
+                    <!--<div class="order fl">1</div>-->
+                    <!--<div class="kind fl">BTC</div>-->
+                    <!--<div class="num">$9075.5</div>-->
+                    <!--<div class="change"><i class="down"></i>-0.06%</div>-->
+                    <!--</a>-->
+                <!--</li>-->
+            </ul>
+        </div>
+    </div>
+    <div class="main ind_mode">
+        <h2 class="ind_tit">
+            <div class="main pr">我创建的币圈 <span class="group-icon"><a href="create.html">创建</a></span></div>
+        </h2>
+       <div class="ind_build_cont">
+           <div class="ind_mygroup">
+               <ul class="main" id="mygroup_list">
+                   <div class="requestLoadingTs">正在请求您创建的币圈信息...</div>
+                   <!--<li><a href="group.html">-->
+                           <!--<div class="txt">潜意识韭菜...</div>-->
+                           <!--<div class="summary">-->
+                               <!--<span class="praise">3</span>-->
+                               <!--<span class="comment">4</span>-->
+                               <!--<span class="joins">5</span>-->
+                               <!--<span class="question">6</span>-->
+                           <!--</div>-->
+                           <!--<div class="remarks">做一个有格调的韭菜</div>-->
+                    <!--</a>-->
+                   <!--</li>-->
+               </ul>
+           </div>
+       </div>
+    </div>
+    <div class="main ind_mode">
+        <h2 class="ind_tit">
+            <div class="main pr">我加入的币圈 <span class="add-icon none">添加</span></div>
+        </h2>
+        <div class="ind_join_cont main">
+            <ul id="myjoin_list">
+                <div class="requestLoadingTs">正在请求加入的币圈的币圈信息...</div>
+                <!--<li><a href="group.html">-->
+                    <!--<div class="join_tit"><span class="tit">矿圈任我行...</span><span class="nums">7人</span></div>-->
+                    <!--<div class="join_img"><div class="img"><img src="images/photo.jpg" alt=""/></div><span class="name">山青水秀</span></div>-->
+                    <!--<div class="join_message">矿圈任我行矿圈任我行矿圈任我行矿圈任我行矿圈任我行矿圈任我行矿圈任我行矿圈任我行</div>-->
+                    <!--<div class="join_bot oh"><span class="time">1周前</span><div class="tr fr"><span class="zan">20</span><span class="comment">10</span></div></div>-->
+                <!--</a>-->
+                <!--</li>-->
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="footer">
+    <ul>
+        <li><a href="index.html"><div class="my active">我的方球</div></a></li>
+        <li><a href="bar.html"><div class="bar">币吧</div></a></li>
+        <li><a href="circle.html"><div class="circle">币圈</div></a></li>
+    </ul>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+loading("1","");
+var loadingEnd1 = 0;
+var loadingEnd2 = 0;
+var loadingEnd3 = 0;
+var loadingEnd4 = 0;
+indexfun();
+function indexfun(){
+    /**
+     * 获取完整用户信息
+     * */
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/userinfo?uid="+uid,
+        type:"post",
+        success:function(data){
+            loadingEnd1 = 1;
+            console.log("获取完整用户信息");
+            console.log(data);
+            var data = data["data"];
+            // 储存用户的分享id
+            localStorage.setItem("UseShareUid",data.share_uid);
+
+            // 等级
+            $("#data_level").text(data.level);
+            if(data.level < 30){
+                $(".group-icon").addClass("none");
+            }else{
+
+            }
+            //财富
+            $("#data_coins").text(data.total);
+
+
+            $("#data_nickname").text(data.nickname);
+            if(data.photo["photo_url"]){
+                $("#data_photourl").attr("src",IMG_SRC+data.photo["photo_url"]);
+            }
+        },
+        error:function(err){
+            loadingEnd1 = 1;
+            console.log(err)
+        }
+
+    });
+    /**
+     * 获取自选币列表
+     *
+     * */
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/my_coin?uid="+uid,
+        type:"post",
+        success:function(data){
+            loadingEnd2 = 1;
+            //console.log("获取自选币列表");
+            //console.log(data);
+            var Info = data["info"];
+            var data = data["data"];
+
+            var str = '';
+            if(data){
+                $.each(data,function(i,v){
+                    var a = v["diff"].indexOf("+");
+                    var b = v["diff"].indexOf("-");
+                    var k = "";
+                    if(a >= 0){
+                        k = "up";
+                    }else if(b >= 0){
+                        k = "down";
+                    }
+
+                    str +='<li><a href="coin.html?id='+v["info"].id+'">';
+                    str +='<div class="order fl">'+(i+1)+'</div>';
+                    str +='<div class="kind fl">'+v["info"].title+'</div>';
+                    str +='<div class="num">$'+v['price'].price+'</div>';
+                    str +='<div class="change"><i class="'+k+'"></i>'+ v["diff"]+'</div>';
+                    str +='</a>';
+                    str +='</li>';
+                });
+            }
+            $("#data_self_coin_list").html(str);
+        },
+        error:function(err){
+            loadingEnd2 = 1;
+            console.log(err)
+        }
+
+    });
+
+
+    /**
+     * 获取我创建的圈子列表
+     *
+     * **/
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/my_circle?uid="+uid,
+        type:"post",
+        success:function(data){
+            loadingEnd3 = 1;
+            //console.log("获取我创建的圈子列表");
+            //console.log(data);
+            var str = '';
+            if(data.code == 11){
+                str = '<p class="ind_mygroup_none tc">点击创建属于自己的币圈</p>';
+            }else{
+                var data = data["data"];
+                if(data){
+                    $.each(data,function(i,v){
+                        str +='<li><a href="group.html?id='+v["info"].id+'">';
+                        str +='<div class="txt">'+v["info"].title+'</div>';
+                        str +='<div class="summary">';
+                        str +='<span class="praise">'+v["like_count"]+'</span>';
+                        str +='<span class="comment">'+v["comment_count"]+'</span>';
+                        str +='<span class="joins">'+v["member_count"]+'</span>';
+//            str +='<span class="question">6</span>';
+                        str +='</div>';
+                        str +='<div class="remarks">'+v["info"].content+'</div>';
+                        str +='</a>';
+                        str +='</li>';
+                    });
+                }else{
+                    str = '<p class="ind_mygroup_none tc">点击创建属于自己的币圈</p>';
+                }
+            }
+            $("#mygroup_list").html(str);
+        },
+        error:function(err){
+            loadingEnd3 = 1;
+            console.log(err)
+        }
+
+    });
+
+    /**
+     * 获取我加入的圈子列表
+     *
+     * */
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/my_joined_circle?uid="+uid,
+        type:"post",
+        success:function(data){
+            loadingEnd4 = 1;
+
+            //console.log(获取我加入的圈子列表);
+            //console.log(data);
+            var str = '';
+            if(data.code == 11){
+                str = '<p class="ind_mygroup_none tc">点击添加属于自己的币圈</p>';
+            }else{
+                var data = data["data"];
+                if(data){
+                    $.each(data,function(i,v){
+                        str +='<li><a href="group.html?id='+v["info"].id+'">';
+                        str +='<div class="join_tit"><span class="tit">'+v["info"].title+'</span><span class="nums">'+v["member_count"]+'人</span></div>';
+                        str +='<div class="join_img"><div class="img"><img  src="'+IMG_SRC+v["info"]["author"]["photo"].photo_url+'" alt="" onerror="this.src=\'images/photo.png\'" /></div><span class="name">'+v["info"]["author"].nickname+'</span></div>';
+                        if(v["timeline"].content){
+                            str +='<div class="join_message">'+v["timeline"].content+'</div>';
+                        }else{
+                            str +='<div class="join_message"></div>';
+                        }
+
+                        str +='<div class="join_bot oh"><span class="time">'+getDateDiff(v["info"].created_at)+'</span><div class="tr fr"><span class="zan">'+v["like_count"]+'</span><span class="comment">'+v["comment_count"]+'</span></div></div>';
+                        str +='</a>';
+                        str +='</li>';
+                    });
+                }else{
+                    str = '<p class="ind_mygroup_none tc">点击添加属于自己的币圈</p>';
+                }
+
+            }
+            $("#myjoin_list").html(str);
+        },
+        error:function(err){
+            loadingEnd4 = 1;
+            console.log(err)
+        }
+
+    });
+}
+var timer = setInterval(function(){
+    if(loadingEnd1 == 1 && loadingEnd2 == 1 && loadingEnd3 == 1 && loadingEnd4 == 1){
+        loading("0","");
+        clearInterval(timer);
+    }
+},300)
+</script>
+</body>
+</html>

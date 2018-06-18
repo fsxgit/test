@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div id="header" class="bb518">
+    <div class="main pr">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        创建币圈
+    </div>
+</div>
+<div class="create_box">
+    <div class="create_img">+</div>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input id="file" type="file" accept="image/*" name="file" style="display: none;"/>
+    </form>
+    <div class="create_txt main">
+        <div class="center">
+            <input class="bb" id="data_circle_name" type="text" placeholder="币圈的名字"/>
+            <textarea name="" id="data_circle_txt" placeholder="简介、口号、目标..."></textarea>
+        </div>
+    </div>
+    <div class="create_btn main mt20"><input id="data_submit" type="button" value="创建"/></div>
+    <div class="create_ts main mt10">方球倡导健康文明的网络环境，愿能一起为区块链及虚拟币行业的健康发展贡献一份力！请勿传播淫秽、色情、低俗、暴力、谣言等信息，一经发现，立即封号！</div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+    var photoId = "";
+//    var photoUrl = "";
+    /**
+     * html5实现图片预览+上传功能
+     *
+     * **/
+        //图片预览
+    $(".create_img").click(function(){
+        $("#file").click();
+    });
+    $("#file").change(function (e) {
+        var file = e.target.files[0] || e.dataTransfer.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                // $(".create_img").html("<img src='"+this.result+"' />");
+                // 上传图片
+                upload();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    //    上传功能：把图片上传给接口功能
+    function upload(){
+        var formData = new FormData($('#uploadForm')[0]);
+        $.ajax({
+            headers: {
+                Accept: "application/json; charset=utf-8",
+                Authorization: "" + userToken
+            },
+            type: 'post',
+            url: PORT_CONNECT+"/api/v1/upload_photo",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            dataType:"json",
+            success:function(data){
+                // console.log(data);
+                photoId = data["data"].id;
+                var photoUrl = data["data"].url;
+                $(".create_img").html("<img src='"+IMG_SRC+photoUrl+"' />");
+            },
+            error:function (e) {
+                console.log("上传失败");
+            }
+        })
+    }
+
+    /**
+     * 提交创建币圈信息
+     * */
+    $("#data_submit").click(function(){
+        var tit = $("#data_circle_name").val();
+        var txt = $("#data_circle_txt").val();
+        if(tit && txt && photoId){
+            $.ajax({
+                headers: {
+                    Accept: "application/json; charset=utf-8",
+                    Authorization: "" + userToken
+                },
+                type: 'post',
+                url: PORT_CONNECT+"/api/v1/add_circle?title="+tit+"&author_uid="+uid+"&content="+txt+"&photo_id="+photoId,
+                success:function(data){
+                    console.log(data);
+                    if(data.code == 10){
+                        console.log("需要传入 title");
+                    }else if(data.code == 11){
+                        console.log("需要传入 author_uid");
+                    }else if(data.code == 12){
+                        console.log("需要传入 content");
+                    }else if(data.code == 13){
+                        wrongTs("待创建的圈子已经存在");
+                    }else if(data.code == 14){
+                        console.log("您还没有权限创建圈子");
+                    }else{
+                        location.href="index.html";
+                    }
+                },
+                error:function (e) {
+                    console.log("上传失败");
+                }
+            })
+        }else{
+            if(!photoId){
+                wrongTs("请上传图片");
+            }else if(!tit){
+                wrongTs("请输入币圈的名字");
+            }else if(!txt){
+                wrongTs("请输入简介");
+            }
+        }
+    })
+</script>
+</body>
+</html>

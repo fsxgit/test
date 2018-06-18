@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div class="bar_nav">
+    <ul>
+        <li><a href="bar.html">币吧</a></li>
+        <li class="active"><a href="news.html">资讯</a></li>
+        <li><a href="activity.html">活动</a></li>
+    </ul>
+</div>
+<div class="news_tab">
+    <ul class="main oh" id="data_tags_list">
+        <!--<li class="active">最新</li>-->
+        <!--<li>行业资讯</li>-->
+        <!--<li>大咖观点</li>-->
+        <!--<li>圈子热点</li>-->
+        <!--<li>快讯直击</li>-->
+    </ul>
+</div>
+<div class="news_box">
+    <ul id="data_news_list">
+        <div class="requestLoadingTs">正在请求资讯信息...</div>
+        <!--<li><a href="news_detail.html">-->
+            <!--<div class="main pr">-->
+                <!--<div class="news_left">-->
+                    <!--<span class="kind">行业资讯</span>-->
+                    <!--<h3 class="tit ellipsis2">世界银行集团：对区块链解决方案与世行自身目标之间的联系表示关注</h3>-->
+                    <!--<p class="abst ellipsis2">摘要：距世界银行发表其对区块链技术持审慎乐观态度的FinTech报告已经过去了将近五个月。世界银行最近在其新的官方文件中重申到，分布式账本技...</p>-->
+                    <!--<div class="news_bot pr">-->
+                        <!--<div class="author">-->
+                            <!--<img src="images/timg.jpeg" alt=""/>-->
+                            <!--<span class="author_name">方球官网</span>-->
+                            <!--<span class="author_time">2周前</span>-->
+                        <!--</div>-->
+                        <!--<div class="view">56</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="news_img"><img src="images/timg.jpeg" alt=""/></div>-->
+            <!--</div>-->
+        <!--</a></li>-->
+    </ul>
+    <p class="loadMore">点击加载更多...</p>
+</div>
+<div id="footer">
+    <ul>
+        <li><a href="index.html"><div class="my">我的方球</div></a></li>
+        <li><a href="bar.html"><div class="bar active">币吧</div></a></li>
+        <li><a href="circle.html"><div class="circle">币圈</div></a></li>
+    </ul>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+loading(1,"");
+/**
+ * 获取币吧数据
+ *
+ * */
+var newsdata = [];
+var last_id = 0;
+/**
+ * 获取新闻列表
+ * state为0时，证明是进入页面时请求数据
+ *      为1时，证明是点击加载更多请求的数据
+ * lastId：加载更多时传的上次请求的最后一个id
+ * */
+NewsLoad("0","");
+function NewsLoad(state,lastId){
+    loading("1","");
+    var URL = "";
+    if(state == 0){
+        URL = PORT_CONNECT+"/api/v1/news";
+    }else{
+        URL = PORT_CONNECT+"/api/v1/news?last_id="+lastId;
+    }
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:URL,
+        type:"post",
+        success:function(data){
+            // console.log(data);
+            var News = data["data"]["list"];
+
+            if(state == 0){
+
+                var Tags = data["data"]["tags"];
+                //tags
+                var tagsli = '';
+                $.each(Tags,function(i,v){
+                    if(i == 0){
+                        tagsli += '<li class="active" data-tagid="'+v.id+'">'+ v.title+'</li>';
+                    }else{
+                        tagsli += '<li data-tagid="'+v.id+'">'+ v.title+'</li>';
+                    }
+
+                });
+                $("#data_tags_list").html(tagsli);
+            }
+
+            var str = '';
+            var len = News.length;
+            $.each(News,function(i,v){
+                // 将讲求来的数据存储在本地，以便于点击分类时，直接请求本地，而不请求接口
+                newsdata.push(v);
+                if(i == len-1){
+                    last_id = v["news"].id;
+                }
+                str +='<li><a href="news_detail.html?id='+v["news"].id+'">';
+                str +='<div class="main pr">';
+                str +='<div class="news_left">';
+                str +='<span class="kind" data-tagid="'+v["tag"].tag_id+'">'+v["tag"]["tag"].title+'</span>';
+                str +='<h3 class="tit ellipsis2">'+v["news"].title+'</h3>';
+                str +='<p class="abst ellipsis2">摘要：'+v["article"].content+'</p>';
+                str +='<div class="news_bot pr">';
+                str +='<div class="author">';
+                str +='<img src="'+IMG_SRC+v["news"]["author"]["photo"].photo_url+'" alt="" onerror="this.src=\'images/photo.png\'" />';
+                str +='<span class="author_name">'+v["news"]["author"].nickname+'</span>';
+                str +='<span class="author_time">'+getDateDiff(v["news"].created_at)+'</span>';
+                str +='</div>';
+                str +='<div class="view">'+v["view"]+'</div>';
+                str +='</div>';
+                str +='</div>';
+                str +='<div class="news_img"><img src="'+IMG_SRC+v["news"]["photo"].photo_url+'" alt="" /></div>';
+                str +='</div>';
+                str +='</a></li>';
+            });
+            if(state == 0){
+                $("#data_news_list").html(str);
+            }else{
+                $("#data_news_list").append(str);
+            }
+
+            loading(0,"");
+        },
+        error:function(err){
+            loading(0,"");
+            console.log(err);
+        }
+
+    });
+}
+
+
+//    点击分类筛选数据
+$("#data_tags_list").on("click","li",function(){
+    $(this).addClass("active").siblings().removeClass("active");
+    var tagid = $(this).data("tagid");
+    //console.log(newsdata);
+    var str = '';
+    $.each(newsdata,function(i,v){
+        if(tagid == 0 || tagid == v["tag"].tag_id){
+            str +='<li><a href="news_detail.html?id='+v["news"].id+'">';
+            str +='<div class="main pr">';
+            str +='<div class="news_left">';
+            str +='<span class="kind" data-tagid="'+v["tag"].tag_id+'">'+v["tag"]["tag"].title+'</span>';
+            str +='<h3 class="tit ellipsis2">'+v["news"].title+'</h3>';
+            str +='<p class="abst ellipsis2">摘要：'+v["article"].content+'</p>';
+            str +='<div class="news_bot pr">';
+            str +='<div class="author">';
+            str +='<img src="'+IMG_SRC+v["news"]["author"]["photo"].photo_url+'" alt="" onerror="this.src=\'images/photo.png\'" />';
+            str +='<span class="author_name">'+v["news"]["author"].nickname+'</span>';
+            str +='<span class="author_time">'+getDateDiff(v["news"].created_at)+'</span>';
+            str +='</div>';
+            str +='<div class="view">'+v["view"]+'</div>';
+            str +='</div>';
+            str +='</div>';
+            str +='<div class="news_img"><img src="'+IMG_SRC+v["news"]["photo"].photo_url+'" alt="" /></div>';
+            str +='</div>';
+            str +='</a></li>';
+        }
+    });
+    $("#data_news_list").html(str);
+});
+
+//    点击刷新更多
+$(".loadMore").click(function(){
+    console.log(last_id);
+    NewsLoad("1",last_id);
+})
+</script>
+</body>
+</html>

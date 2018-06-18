@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <style>
+        #container{height:100%; width: 98%; margin:0 auto; }
+        .coin_txt_swipe span{ color: #fff; white-space:nowrap;  background: rgba(0,0,0,0.5); position: absolute; left:0; padding:0 15px; border-radius: 14px; margin:0 10px; font-size: 14px; height: 20px; line-height: 20px; }
+        .coin_txt_swipe .nspan{background: #5d3cba; z-index: 12; }
+    </style>
+</head>
+<body>
+<div id="coin_header" class="bb518">
+    <div class="main pr top">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        <span class="tit" id="data_coin_tit">BTC</span>
+        <span class="add-coin" style="display: none;" id="data_coin_add" >加入自选币</span>
+        <span class="add-coin" style="display: none;" id="data_coin_remove" >移除自选币</span>
+    </div>
+    <div class="bot">行情</div>
+</div>
+<div class="coin_box">
+    <div class="coin_txt_swipe pr">
+        <!--<span class='span'>按时大大按时大大按时大大按</span>-->
+        <!--<span class='span'>按时大</span>-->
+        <!--<span class='span'>按时大大按时</span>-->
+        <!--<span class='span'>按时大大按时大大按</span>-->
+    </div>
+    <div class="coin_chart">
+        <div id="container"></div>
+    </div>
+    <div class="coin_mess">
+       <div class="main oh">
+           <div class="coin_mess_left fl">
+               <h3 id="data_mess_tit">ETH</h3>
+               <span id="data_mess_usd">$699</span>
+               <p class="c000" id="data_mess_rmb">￥4753.2</p>
+           </div>
+           <div class="coin_mess_right fr">
+               <p id="data_mess_high">最高：￥7978.03</p>
+               <p id="data_mess_low">最低：￥7978.03</p>
+               <p id="data_mess_amount">成交：￥7978.03</p>
+           </div>
+       </div>
+    </div>
+    <div class="coin_info">
+        <div class="main">
+            <table>
+                <thead>
+                <th>交易所</th>
+                <th>当前价</th>
+                <th>24小时成交量</th>
+                <th>涨跌</th>
+                </thead>
+                <tbody id="data_exchanges">
+                <!--<tr>-->
+                    <!--<td>Binance</td>-->
+                    <!--<td>$8970</td>-->
+                    <!--<td>139281</td>-->
+                    <!--<td class="change"><i class="up"></i>+0.06%</td>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<td>Binance</td>-->
+                    <!--<td>$8970</td>-->
+                    <!--<td>139281</td>-->
+                    <!--<td class="change"><i class="down"></i>-0.06%</td>-->
+                <!--</tr>-->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div class="coin_comment" id="data_comment_list">
+        <!--<h3 class="tit">4月21日</h3>-->
+        <!--<ul class="main">-->
+            <!--<li>-->
+                <!--<div class="time">00:00</div>-->
+                <!--<div class="comments_box">-->
+                    <!--<div class="comments_txt">-->
+                        <!--近日，BTC在8000USD附近反复震荡，爆完多头爆空头，显示8000USD附近多空分歧明显冲上8400USD后，BTC出现了快速的冲高回落，继而又拉升修复上攻至8200USD上方，这样的走势说明作为新整数关口的8400USD，这个点位上势必有盘中的激震动作。经历了2万USD牛市暴跌后，没有更多做多量能的支持，显然多头主力无法重演任性的逼空攻势，空头主力不会一味退守，空头主力势必启动暂时性的盘中反扑动作。从趋势上看，震荡上行是目前币市的运行主基调，盘中激震将触发大洗盘，在洗盘夯实后，BTC将继续上攻，也就是说，在没有达到10000USD关口之前，BTC的进攻之路还将继续向前，新主升浪已经引爆。近日市场不断出现妖币轮番爆拉，说明市场人气已经回暖，庄家已经跃跃欲试，主力在8400USD点关口反复拉锯洗盘，将引爆新主升浪行情。-->
+                        <!--BTC作为龙头币，只要它稳定上行，其他币种必然轮番表演，你方唱罢我登场！-->
+                    <!--</div>-->
+                    <!--<div class="comments_praise  pr" data-yy="3"  data-yn="2">-->
+                        <!--<span class="praise">利好 3</span>-->
+                        <!--<span class="reject">利空 2</span>-->
+                        <!--<div class="praise_progress pr"><span class="praise_percent" style="width: 60%;"></span></div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</li>-->
+            <!--<li>-->
+                <!--<div class="time">08:00</div>-->
+                <!--<div class="comments_box">-->
+                    <!--<div class="comments_txt">-->
+                        <!--近日，BTC在8000USD附近反复震荡，爆完多头爆空头，显示8000USD附近多空分歧明显冲上8400USD后，BTC出现了快速的冲高回落，继而又拉升修复上攻至8200USD上方，这样的走势说明作为新整数关口的8400USD，这个点位上势必有盘中的激震动作。经历了2万USD牛市暴跌后，没有更多做多量能的支持，显然多头主力无法重演任性的逼空攻势，空头主力不会一味退守，空头主力势必启动暂时性的盘中反扑动作。从趋势上看，震荡上行是目前币市的运行主基调，盘中激震将触发大洗盘，在洗盘夯实后，BTC将继续上攻，也就是说，在没有达到10000USD关口之前，BTC的进攻之路还将继续向前，新主升浪已经引爆。近日市场不断出现妖币轮番爆拉，说明市场人气已经回暖，庄家已经跃跃欲试，主力在8400USD点关口反复拉锯洗盘，将引爆新主升浪行情。-->
+                        <!--BTC作为龙头币，只要它稳定上行，其他币种必然轮番表演，你方唱罢我登场！-->
+                    <!--</div>-->
+                    <!--<div class="comments_praise  pr" data-yy="3"  data-yn="2">-->
+                        <!--<span class="praise">利好 3</span>-->
+                        <!--<span class="reject">利空 2</span>-->
+                        <!--<div class="praise_progress pr"><span class="praise_percent" style="width: 60%;"></span></div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</li>-->
+        <!--</ul>-->
+    </div>
+    <p class="loadMore">点击加载更多...</p>
+</div>
+<div class="comment_bot">
+    <div class="main pr">
+        <div class="input"><input id="data_send_txt" type="text" placeholder="发一弹"/></div>
+        <div class="submit" id="data_send"></div>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+var coinid = GetHrefVal("id");
+var last_id = "";
+/**
+ * 赞成与反对的占比计算
+ * Y:赞成数目
+ * N:反对数目
+ * */
+var Y = 0;
+var N = 0;
+function praisePercent(Y,N){
+
+    var w = 1;
+    if(N == Y){
+        w = 0.5;
+    }else{
+        if(Y == 0){
+            w = 0;
+        }else if(N == 0){
+            w = 1;
+        }else{
+            w = Y/(Y+N);
+        }
+    }
+    return w;
+}
+
+/**
+ * 返回某个币的详细信息
+ * *  state为0时，证明是进入页面时请求数据,需要所有的信息
+ *      为1时，证明是点击加载更多请求的数据，只需要新闻评论的信息
+ *  lastId：加载更多时传的上次请求的最后一个id
+ * */
+coinInfo("0","");
+function coinInfo(state,lastId){
+    loading("1","");
+    var URL = "";
+    if(state == 0){
+        URL = PORT_CONNECT+"/api/v1/coin/"+coinid+"?uid="+uid;
+    }else{
+        URL = PORT_CONNECT+"/api/v1/coin/"+coinid+"?uid="+uid+"&last_id="+lastId;
+    }
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:URL,
+        type:"post",
+        success:function(data){
+            loading("","");
+            console.log(data);
+
+            var News = data["data"]["news"]; //币新闻信息
+
+            if(state == 0){
+                var Info = data["data"]["info"]; //币信息
+                var Barrages = data["data"]["danmu"]; //币弹幕
+                var Exchanges = data["data"]["exchange"]; //币交易信息
+                var Prices = data["data"]["price"]; //币价格信息
+
+                //币价格处理
+                $("#data_mess_tit").text(Info.title);
+                $("#data_mess_usd").text("$"+Prices.usd);
+                $("#data_mess_rmb").text("￥"+Prices.rmb);
+                $("#data_mess_high").text("最高："+Prices.high);
+                $("#data_mess_low").text("最低："+Prices.low);
+                $("#data_mess_amount").text("成交："+Prices.amount);
+
+                // 判断是不是已经加入了自选币
+                if(data["data"].is_added != 1){
+                    $("#data_coin_add").show();
+                    $("#data_coin_remove").hide();
+                }else{
+                    $("#data_coin_add").hide();
+                    $("#data_coin_remove").show();
+
+                }
+
+                // 信息处理
+                $("#data_coin_tit").text(Info.title);
+
+                // 弹幕处理
+                console.log();
+                if(Barrages.length != 0 ){
+                    var dmdata = [];
+                    $.each(Barrages,function(i,v){
+                        if(v.content){
+                            dmdata.push(v.content);
+                        }
+                    });
+                    sendBarrage(dmdata,30,".coin_txt_swipe","5000");
+                }
+                // 交易信息处理
+                var eStr = "";
+                $.each(Exchanges,function(i,v){
+                    var a = v["diff"].indexOf("+");
+                    var b = v["diff"].indexOf("-");
+                    var k = "";
+                    if(a >= 0){
+                        k = "up";
+                    }else if(b >= 0){
+                        k = "down";
+                    }
+                    eStr += '<tr>';
+                    eStr += '<td>'+ v["info"].title+'</td>';
+                    eStr += '<td>$'+v["price"].price+'</td>';
+                    eStr += '<td>'+v["price"].total_24+'</td>';
+                    eStr += '<td class="change"><i class="'+k+'"></i>'+v["diff"]+'</td>';
+                    eStr += '</tr>';
+                });
+                $("#data_exchanges").html(eStr);
+            }
+
+            // 新闻信息处理
+            var nStr = "";
+            //console.log("新闻："+News);
+            if(News){
+                var len = News.length;
+                $.each(News,function(i,v){
+                    if(i == len-1){
+                        last_id = v["info"].id;
+                    }
+                    nStr +='<h3 class="tit">'+v["info"].date_now.split(" ")[0]+'</h3>';
+                    nStr +='<ul class="main">';
+
+                    for(var j=0; j < v["list"].length; j++){
+                        nStr +='<li>';
+                        nStr +='<div class="time">'+v["list"][j].pubdate.split(" ")[1].substr(0,5)+'</div>';
+                        nStr +='<div class="comments_box">';
+                        nStr +='<div class="comments_txt">'+v["list"][j].content+'</div>';
+                        var Y = v["list"][j].trend_yes;
+                        var N = v["list"][j].trend_no;
+                        nStr +='<div class="comments_praise  pr" data-itemid="'+v["list"][j].id+'" data-yy="'+Y+'"  data-yn="'+N+'">';
+                        nStr +='<span class="praise">利好 '+Y+'</span>';
+                        nStr +='<span class="reject">利空 '+N+'</span>';
+                        var w = praisePercent(Y,N)*100;
+                        nStr +='<div class="praise_progress pr"><span class="praise_percent" style="width: '+w+'%;"></span></div>';
+                        nStr +='</div>';
+                        nStr +='</div>';
+                        nStr +='</li>';
+                    }
+                    nStr +='</ul>';
+                });
+                if(state == 0){
+                    $("#data_comment_list").html(nStr);
+                }else{
+                    $("#data_comment_list").append(nStr);
+                }
+
+            }
+
+
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+}
+
+/**
+ * 添加自选币
+ *
+ * */
+$("#data_coin_add").click(function(){
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/add_coin?uid="+uid+"&coin_id="+coinid,
+        type:"post",
+        success:function(data){
+            console.log("添加自选币返回：");
+            console.log(data);
+            if(data.code == 11){
+                console.log("需要传入 uid");
+            }else if(data.code == 12){
+                console.log("需要传入 coin_id");
+            }else if(data.code == 13){
+                wrongTs("不能重复加入");
+            }else if(data.code == 14){
+                wrongTs("添加加密币失败");
+            }else{
+                $("#data_coin_add").hide();
+                $("#data_coin_remove").show();
+            }
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+});
+
+/**
+ * 移除自选币
+ * **/
+
+$("#data_coin_remove").click(function(){
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/remove_mycoin?uid="+uid+"&coin_id="+coinid,
+        type:"post",
+        success:function(data){
+            console.log("移除自选币返回：");
+            console.log(data);
+            if(data.code == 11){
+                console.log("需要传入 uid");
+            }else if(data.code == 12){
+                console.log("需要传入 coin_id");
+            }else if(data.code == 13){
+                wrongTs("不能重复加入");
+            }else if(data.code == 14){
+                wrongTs("移除加密币失败");
+            }else{
+                $("#data_coin_add").show();
+                $("#data_coin_remove").hide();
+            }
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+});
+
+/**
+ * 对一个加密币发弹幕评论
+ *
+ * */
+$("#data_send").click(function(){
+    var content = $("#data_send_txt").val();
+    if(content){
+        $.ajax({
+            headers: {
+                Accept: "application/json; charset=utf-8",
+                Authorization: "" + userToken
+            },
+            url:PORT_CONNECT+"/api/v1/coin/"+coinid+"/danmu?uid="+uid+"&content="+content+"&color=000000",
+            type:"post",
+            success:function(data){
+                // console.log(data);
+                if(data.code == 10){
+                    console.log("需要传入 uid");
+                }else if(data.code == 11){
+                    console.log("需要传入 content");
+                }else if(data.code == 12){
+                    console.log("需要传入 color");
+                }else if(data.code == 13 || data.code == 14){
+                    wrongTs("不可重复发表相同内容");
+                }else{
+                    console.log("发送成功");
+                    $("#data_send_txt").val("");
+                    newSendBarrage(content,".coin_txt_swipe","50","5000");
+
+                }
+            },
+            error:function(err){
+                console.log(err)
+            }
+
+        });
+    }
+});
+
+/**
+ * 对一个加密币下的资讯，发布态度（利好利空）
+ *
+ * */
+$("#data_comment_list").on("click",".praise",function(){
+    var This = $(this).parents(".comments_praise");
+    var itemid = This.data("itemid");
+    var Y = parseInt(This.data("yy"))+1;
+    var N = parseInt(This.data("yn"));
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/coin_news/"+itemid+"/trend?uid="+uid+"&yes_or_no=1",
+        type:"post",
+        success:function(data){
+            //console.log(data);
+            if(data.code == 10){
+                console.log("需要传入 uid");
+            }else if(data.code == 11){
+                console.log("需要传入 trend");
+            }else if(data.code == 12){
+                wrongTs("发布态度失败");
+            }else if(data.code == 14){
+                wrongTs("已表态");
+            }else{
+                console.log("评论成功");
+
+                var w = praisePercent(Y,N);
+                This.find(".praise").text("利好 "+Y);
+                This.find(".reject").text("利空 "+N);
+                This.find(".praise_percent").css("width",w*100+"%");
+            }
+        },
+        error:function(err){
+            console.log(err)
+        }
+    });
+});
+
+$("#data_comment_list").on("click",".reject",function(){
+    var This = $(this).parents(".comments_praise");
+    var itemid = This.data("itemid");
+    var Y = parseInt(This.data("yy"));
+    var N = parseInt(This.data("yn"))+1;
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/coin_news/"+itemid+"/trend?uid="+uid+"&yes_or_no=2",
+        type:"post",
+        success:function(data){
+            console.log(data);
+            if(data.code == 10){
+                console.log("需要传入 uid");
+            }else if(data.code == 11){
+                console.log("需要传入 trend");
+            }else if(data.code == 12){
+                wrongTs("发布态度失败");
+            }else if(data.code == 14){
+                wrongTs("已表态");
+            }else{
+                console.log("评论成功");
+
+                var w = praisePercent(Y,N);
+                This.find(".praise").text("利好 "+Y);
+                This.find(".reject").text("利空 "+N);
+                This.find(".praise_percent").css("width",w*100+"%");
+            }
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+});
+
+
+//    点击刷新更多
+$(".loadMore").click(function(){
+    console.log(last_id);
+    coinInfo("1",last_id);
+})
+</script>
+<!--折线图-->
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+<script>
+    /**
+     * 获取一个加密币的行情每天数据
+     *
+     * */
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:PORT_CONNECT+"/api/v1/daily_price?coin_id="+coinid,
+        type:"post",
+        success:function(data){
+            //console.log(data);
+            if(data.code == 10){
+                console.log("需要传入 coin_id");
+            }else{
+                var category = data["data"]["category"]; //时间
+                var values = data["data"]["values"]; //值
+                if(category && category.length != 0 && values && values.length != 0){
+                    echartsFun(category,values);
+                }
+            }
+        },
+        error:function(err){
+            console.log(err)
+        }
+
+    });
+
+
+    var colorList = ['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'];
+    var labelFont = 'bold 12px Sans-serif';
+
+
+    function calculateMA(dayCount, data) {
+        var result = [];
+        for (var i = 0, len = data.length; i < len; i++) {
+            if (i < dayCount) {
+                result.push('-');
+                continue;
+            }
+            var sum = 0;
+            for (var j = 0; j < dayCount; j++) {
+                sum += data[i - j][1];
+            }
+            result.push((sum / dayCount).toFixed(2));
+        }
+        return result;
+    }
+    function echartsFun(xdata,ydata){
+
+        var dataMA5 = calculateMA(5, ydata);
+//        console.log("y轴数据："+ydata);
+        // console.log(dataMA5);
+
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+        option = null;
+        myChart.setOption(option = {
+            animation: false,
+            color: colorList,
+            legend: {
+                top: 30,
+                data: ['日K', 'MA5']
+            },
+            grid: {
+                left: '15%',
+                right: '5%',
+                bottom: '15%'
+            },
+            title: {
+                left: 'center',
+//                text: '移动端 K线图'
+            },
+            tooltip: {
+                data:ydata,
+                trigger: 'axis',//是否节点触发
+                padding: 5,
+                formatter: function(e){
+                    var i = e[0].dataIndex;
+                    return ('<div class="tl">数据名称:K线'+""
+                    +'</br>open:'+ ydata[i][0]
+                    +'<br>close:'+ ydata[i][1]
+                    +'<br>lowest:'+ ydata[i][2]
+                    +'<br>highest:'+ ydata[i][3]
+                    +'<br>MA5:'+ dataMA5[i]
+                    +'<div>'
+                    );
+                },
+                position: function (pos, params, el, elRect, size) {
+//                    var obj = {
+//                        top: 60
+//                    };
+//                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 50;
+//                    return obj;
+                }
+            },
+            xAxis: {
+                type: 'category',
+//                data: xdata.map(function (item) {
+//                    return item;
+//                })
+                data: xdata,
+            },
+            yAxis: {
+                splitLine: {
+                    show: true,
+                    lineStyle:{
+                        color:'#eee',
+                        width: 1
+                    }
+                },
+                type: 'value',
+//                name: '营业额(元)',
+                axisTick: {
+                    inside: true
+                },
+                scale: true,
+                splitArea: {
+                    show: true
+                },
+                axisLabel: {
+                    margin: 2
+                }
+            },
+            dataZoom: [{
+                    startValue: '2014-06-01'
+                }, {
+                    type: 'inside'
+                }
+            ],
+            graphic: [{
+                type: 'group',
+                left: 'center',
+                top: 70,
+                width: 300,
+                bounding: 'raw',
+                children: [{
+                    id: 'MA5',
+                    type: 'text',
+                    style: {fill: colorList[1], font: labelFont},
+                    left: 0
+                }]
+            }],
+            series: [
+//                {
+//                name: 'BiYing',
+//                type: 'line',
+//                data: ydata.map(function (item) {
+//                    return item[1];
+//                })
+//            },
+                {
+                type: 'candlestick',
+                name: '日K',
+                data: ydata,
+                itemStyle: {
+                    normal: {
+                        color: '#ef232a',
+                        color0: '#14b143',
+                        borderColor: '#ef232a',
+                        borderColor0: '#14b143'
+                    },
+                    emphasis: {
+                        color: 'black',
+                        color0: '#444',
+                        borderColor: 'black',
+                        borderColor0: '#444'
+                    }
+                }
+            }, {
+                name: 'MA5',
+                type: 'line',
+                data: dataMA5,
+                smooth: true,
+                showSymbol: true,
+                lineStyle: {
+                    normal: {
+                        width: 1
+                    }
+                }
+            }]
+        });
+        if (option && typeof option === "object") {
+            myChart.setOption(option, true);
+        }
+    }
+</script>
+</body>
+</html>

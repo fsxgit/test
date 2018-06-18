@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>幸运大转盘</title>
+    <link rel="stylesheet" href="css/style.css"/>
+    <style>
+        *{margin:0; padding:0;}
+        html,body{width: 100%; height: 100%;}
+        body{min-height: 100%; overflow: auto; background: url("images/lpbg.jpg") no-repeat 0 0; background-size:cover; }
+    </style>
+</head>
+<body>
+<div id="coin_header" class="bb518">
+    <div class="main pr top">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        <span class="tit" id="data_coin_tit">抽奖</span>
+    </div>
+</div>
+<div class="zpBox">
+    <div class="zpWrap">
+        <div class="zpCenter"><img src="images/lunbg.png" alt=""/></div>
+        <div class="zpPointer"><img src="images/pointer.png" alt=""/></div>
+        <img class="leave1" src="images/leave1.png" alt=""/>
+        <img class="leave2"  src="images/leave2.png" alt=""/>
+        <img class="leave3"  src="images/leave3.png" alt=""/>
+        <img class="leave4"  src="images/leave4.png" alt=""/>
+    </div>
+    <div class="lpshadow"><img src="images/lpshadow.png" alt=""/></div>
+    <div class="lpbtn"><img src="images/lpbtn.png" alt=""/></div>
+    <p class="lpts"><span>每次游戏仅消耗0xball哦</span></p>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+
+    /**
+     * 注意:图片奖品顺序，prizes奖品顺序，prizePercent奖品获奖率，以及rnum获取数一定要搞清楚，对照清楚
+     *
+     * */
+
+    /**
+     * 自制幸运大转盘
+     * prizes:区域所对应奖品，顺时针从初始位置开始
+     * prizePercent：中奖概率分布
+     * yangle：要转动的角度
+     * pLen:奖品种类
+     * nc:每次要转动的整圈数；
+     * tdeg:到达奖品位置要从初始点走的距离；
+     * porder:奖品的序号
+     * psite:转动后所要到达的位置 1-7对应所到区域
+     * 初始位置为0deg;顺时针旋转;
+     * 每次转到距离是 所要转动的圈数(nc*360+ideg/2),保证转到所要到达奖品位置的中心
+     * tstxt:中奖后对应要提示的话
+     * prtxt:奖品对应提示语
+     * isqd：1是签到获得的抽奖机会，0不是签到获得的抽奖机会（也即是xball购买的抽奖机会）
+     *
+     * */
+    //每个奖品所占度数
+    var luckNum = 1; //抽奖次数
+    var prizes = ["5%锁定转激活Xball额度","3%锁定转激活Xball额度","2%锁定转激活Xball额度","1%锁定转激活Xball额度","50Xball","再接再厉","5元京东卡"];
+    var prizePercent = [ '0%', '0%', '1%', '2%', '47%',"50%", '0%'];
+    var prtxt = [  '', '','中奖喽！您2%的锁定Xball会激活哦', '中奖喽！您1%的锁定Xball会激活哦', '获得了50Xball哦!手气来了~','木有中~再试一次也许会有？', ''];
+    var pLen = 7;
+    var ideg = parseInt(360/pLen);
+    //为了减少除不尽时的小数的误差，需要判断来做误差处理，如果余数
+    console.log("每一模块所占度数="+ideg);
+    var nc = 5;
+    var tstxt = "";
+    var prevdeg = 0; //上次少走的距离，如果下次还要从0开始，就要把上次少走的距离给多走出来，才能够算是从0开始走；故每次走完都要记录一下这次少走的值
+    var currdeg = 0; //当前所处的转动位置,每次转动后都要记录一下
+    var isqd = 0;
+    function calcNum(isqd){
+        var psite = 0;
+        //设置1-100随机数，每一个数字代表1点概率；
+        var m = 101;
+        var n = 1;
+        var rnum = Math.floor(Math.random()*(m - n) + n);
+        //防止差错
+        if(rnum <=1){
+            rnum = 1;
+        }
+        if(rnum >= 100){
+            rnum = 100;
+        }
+        //根据中奖概率计算所对应的数字
+        //对应区域按照顺时针分别是1，2，3，4，5，6，7
+        console.log("随机数="+rnum);
+        if(isqd == 1){
+            //是签到获得的抽奖机会
+            if( rnum>=1 && rnum<=50){
+                //50%; 再接再厉
+                psite = 6
+            }else{
+                //50%; 50Xball
+                psite = 5
+            }
+        }else{
+            //是xball购买的抽奖机会
+            if( rnum>=1 && rnum<=50){
+                //50%; 再接再厉
+                psite = 6
+            }else if( rnum>=51 && rnum<=97){
+                //47%; 50Xball
+                psite = 5
+            }else if( rnum>=98 && rnum<=99){
+                //2%; 1%锁定转激活Xball额度
+                psite = 4
+            }else if( rnum>=100){
+                //1%; 2%锁定转激活Xball额度
+                psite = 3
+            }
+        }
+
+        //根据随机数确定要滚动到第几个模块【模块逆时针依次是1-7】，并找到对应的提示文字；
+        tstxt = prtxt[(psite-1)];
+        return psite;
+    }
+
+
+
+    $(".lpbtn").click(function(){
+        if(luckNum != 0){
+            var porder;
+            if(isqd == 1){
+                porder = calcNum(1);
+            }else{
+                porder = calcNum(0)
+            }
+            console.log("对应奖品序号="+porder);
+
+            var tdeg = ideg * porder-ideg/2;
+            console.log("所要多转动区域="+tdeg);
+
+            var yangle = currdeg+(nc*360+tdeg);
+
+            currdeg = yangle -tdeg; //存储 下次开始时的位置（也就是之前走过的总距离-多走出的tdeg的距离，也就是让指针从零开始计算，方便循环的计算）
+            console.log("下次开始的位置="+currdeg);
+
+            $(".zpCenter").css("transform","rotate("+yangle+"deg)");
+            console.log("对应奖品提示文字="+tstxt);
+            setTimeout(function(){
+                alert(tstxt);
+            },3000);
+        }else{
+            wrongTs("没有抽奖次数了哟！")
+        }
+    });
+
+</script>
+</body>
+</html>

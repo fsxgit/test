@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div class="bar_nav">
+    <ul>
+        <li><a href="bar.html">币吧</a></li>
+        <li><a href="news.html">资讯</a></li>
+        <li class="active"><a href="activity.html">活动</a></li>
+    </ul>
+</div>
+<div class="news_tab w333">
+    <ul class="main oh" id="data_tags_list">
+        <!--<li class="active">最新</li>-->
+        <!--<li>空投糖果</li>-->
+        <!--<li>行业峰会</li>-->
+    </ul>
+</div>
+<div class="activity_box">
+    <ul id="data_activity_list">
+        <div class="requestLoadingTs">正在请求活动信息...</div>
+        <!--<li><a href="activity_detail.html">-->
+            <!--<div class="main tc">-->
+                <!--<p class="kind">行业峰会</p>-->
+                <!--<h3 class="tit">“共识区块，链接未来” —2018GBCS全球区块链共识峰会强势登陆上海</h3>-->
+                <!--<p class="site">上海中星铂尔曼大酒店</p>-->
+                <!--<p class="abstract ellipsis3">“2018 GBCS全球区块链共识峰会”旨在加强全球金融行业者们的交流，达成真正的区块链科技共识，推动全球金融科技的发展。此次峰会规模宏大，...</p>-->
+                <!--<p class="interest">2人感兴趣</p>-->
+            <!--</div>-->
+        <!--</a></li>-->
+    </ul>
+    <p class="loadMore">点击加载更多...</p>
+</div>
+<div id="footer">
+    <ul>
+        <li><a href="index.html"><div class="my">我的方球</div></a></li>
+        <li><a href="bar.html"><div class="bar active">币吧</div></a></li>
+        <li><a href="circle.html"><div class="circle">币圈</div></a></li>
+    </ul>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+loading(1,"");
+/**
+ * 获取币吧数据
+ *
+ * */
+var activitysdata = [];
+var last_id = 0;
+/**
+ * 获取活动列表
+ * state为0时，证明是进入页面时请求数据
+ *      为1时，证明是点击加载更多请求的数据
+ * lastId：加载更多时传的上次请求的最后一个id
+ * */
+activityLoad("0","");
+function activityLoad(state,lastId){
+    loading("1","");
+    var URL = "";
+    if(state == 0){
+        URL = PORT_CONNECT+"/api/v1/activity";
+    }else{
+        URL = PORT_CONNECT+"/api/v1/activity?last_id="+lastId;
+    }
+    $.ajax({
+        headers: {
+            Accept: "application/json; charset=utf-8",
+            Authorization: "" + userToken
+        },
+        url:URL,
+        type:"post",
+        success:function(data){
+            console.log(data);
+            var Activitys="";
+            Activitys = data["data"]["list"];
+            if(state == 0){
+                var Tags = data["data"]["tags"];
+                //tags
+                var tagsli = '';
+                var len = Activitys.length;
+                $.each(Tags,function(i,v){
+                    if(i == 0){
+                        tagsli += '<li class="active" data-tagid="'+v.id+'">'+ v.title+'</li>';
+                    }else{
+                        tagsli += '<li data-tagid="'+v.id+'">'+ v.title+'</li>';
+                    }
+
+                });
+                $("#data_tags_list").html(tagsli);
+            }
+
+            var str = '';
+            var len = Activitys.length;
+            $.each(Activitys,function(i,v){
+                // 将讲求来的数据存储在本地，以便于点击分类时，直接请求本地，而不请求接口
+                activitysdata.push(v);
+                if(i == len-1){
+                    last_id = v["activity"].id;
+                }
+                str +='<li><a href="activity_detail.html?id='+v["activity"].id+'">';
+                str +='<div class="main tc">';
+                str +='<p class="kind" data-tagid'+v["tag"].tag_id+'>'+v["tag"]["tag"].title+'</p>';
+                str +='<h3 class="tit">'+v["activity"].title+'</h3>';
+                str +='<p class="site">'+v["activity"]["location"].address+'</p>';
+                str +='<p class="abstract ellipsis3">'+v["article"].content+'</p>';
+                str +='<p class="interest">'+v["interest"]+'人感兴趣</p>';
+                str +='</div>';
+                str +='</a></li>';
+            });
+
+            if(state == 0){
+                $("#data_activity_list").html(str);
+            }else{
+                $("#data_activity_list").append(str);
+            }
+
+            loading(0,"");
+        },
+        error:function(err){
+            loading(0,"");
+            console.log(err);
+        }
+
+    });
+}
+
+
+
+
+//    点击分类筛选数据
+$("#data_tags_list").on("click","li",function(){
+    $(this).addClass("active").siblings().removeClass("active");
+    var tagid = $(this).data("tagid");
+    //console.log(newsdata);
+    var str = '';
+    $.each(activitysdata,function(i,v){
+        if(tagid == 0 || tagid == v["tag"].tag_id){
+            str +='<li><a href="activity_detail.html?id='+v["activity"].id+'">';
+            str +='<div class="main tc">';
+            str +='<p class="kind" data-tagid'+v["tag"].tag_id+'>'+v["tag"]["tag"].title+'</p>';
+            str +='<h3 class="tit">'+v["activity"].title+'</h3>';
+            str +='<p class="site">'+v["activity"]["location"].address+'</p>';
+            str +='<p class="abstract ellipsis3">'+v["article"].content+'</p>';
+            str +='<p class="interest">'+v["interest"]+'人感兴趣</p>';
+            str +='</div>';
+            str +='</a></li>';
+        }
+    });
+    $("#data_activity_list").html(str);
+});
+
+
+//    点击刷新更多
+$(".loadMore").click(function(){
+    console.log(last_id);
+    activityLoad("1",last_id);
+})
+</script>
+</body>
+</html>

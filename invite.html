@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+    <title>方球</title>
+    <link  rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div id="header" class="bb518">
+    <div class="main pr">
+        <a class="back" href="javascript:history.go(-1);"></a>
+        邀请
+    </div>
+</div>
+<div class="invite_box pt40">
+    <div class="main">
+        <h2>分享以下地址给您的好友：</h2>
+        <input id="data_share_href" class="href mt20" type="text" value=""/>
+        <div class="create_btn mt20"><input type="button" value="点击复制"/></div>
+    </div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/js.js"></script>
+<script>
+// 获取用户的分享id
+var UseShareUid = GetHrefVal("UseShareUid");
+
+//获取圈子分享id
+var CircleShareUid = GetHrefVal("CircleShareUid");
+
+var str = INVITE_CONNECT+"?sd="+UseShareUid+"&cd="+CircleShareUid;
+$("#data_share_href").val(str);
+
+//点击复制
+var a = 1;
+$(".create_btn").click(function(){
+    var Url2=$("#data_share_href");
+    Url2.select();
+    document.execCommand("Copy");
+
+    wrongTs("复制成功");
+})
+</script>
+</body>
+</html>
